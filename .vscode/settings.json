@@ -1,0 +1,15 @@
+{
+    "cmake.sourceDirectory": "C:/Users/incre/OneDrive - Binghamton University/Sean Weber - AeroBing/New Age AeroBing/Electronics/GAG Squad/SHART 0.6/lib/Adafruit_BusIO",
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "array": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp",
+        "*.tcc": "cpp"
+    }
+}
