@@ -24,6 +24,7 @@
 
 // Initialize the SD card
 void Shart::initSD() {
+
   // Increment the number of initialization attempts
   sd_num_connection_attempts++;
 
@@ -61,34 +62,6 @@ void Shart::initSD() {
   UPDATE_STATUS(SDStatus, AVAILABLE)
   return;
 
-  // If the SD card fails to initialize, print an error
-  /*
-  if (!SD.begin(BUILTIN_SDCARD)) {
-    // Update status and early return
-    UPDATE_STATUS(SDStatus, UNAVAILABLE)
-    ERROR("SD card initialization failed!")
-    return;
-
-  }
-
-  SD.remove(SD_CARD_FILENAME);
-
-  // Open/create the data file, print and error on failure
-  if (!(data_file = SD.open(SD_CARD_FILENAME, FILE_WRITE))) {
-    // Update status and early return
-    UPDATE_STATUS(SDStatus, UNAVAILABLE)
-    ERROR("Data file failed to open!")
-    return;
-
-  }
-
-  // Reset the number of connection attempts
-  sd_num_connection_attempts = 0;
-
-  // Update status
-  UPDATE_STATUS(SDStatus, AVAILABLE)
-  return;
-  */
 }
 
 void Shart::initRadio() {
@@ -132,14 +105,12 @@ void Shart::saveData() {
     ERROR("Write error!")
     return;
   }
-  // Write any RingBuf data to file.
-  //rb.sync();
+
 }
 
 // Transmit binary data via radio, beware of endian-ness. Network standard is big endian, but no point in converting twice
-// TODO: header should include a byte indicating the status of all sensors
+// TODO: packet should include a byte indicating the status of all sensors
 void Shart::transmitData() {
-
 
 #ifdef DEBUG_MODE_BINARY
   // send binary data to USB serial for testing

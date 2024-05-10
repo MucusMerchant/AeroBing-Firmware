@@ -47,11 +47,9 @@
   #define PRINT_DATARATE()
 #endif
  
-/*for (int i = 1; i < n; i++) { \
-      sprintf(buf, "  %+12.5f", data[i]); \
-      Serial.print(buf); \
-    } \*/
+
 // Prints data (human-readable) to Serial
+// NOTE: this is somewhat obselete now that we have an actual communication protocol. consider deleting
 #ifdef DEBUG_MODE_SENSOR_DATA
   #define PRINT_DATA(sen, gp) \
     Serial.print("[SENSOR] "); \

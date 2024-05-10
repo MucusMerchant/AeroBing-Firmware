@@ -10,16 +10,12 @@ void Shart::init() {
   // dont do this if no USB connection
   initSerial();
 
-  // idk abt this
-  //SPI.begin();
-  //SPI1.begin();
-
   // initialize storage and transmission
   initSD();
   initRadio();
 
   // initialize sensors
-  initBNO055();
+  initICM20948();
   initBMP388();
   initADXL375();
   initGTU7();
@@ -35,8 +31,8 @@ void Shart::collect() {
   collectTime();
 
   // Only collect data when sensors are marked as AVAILABLE
-  updateStatusBNO055();
-  if (getStatusBNO055() == AVAILABLE) collectDataBNO055();
+  updateStatusICM20948();
+  if (getStatusICM20948() == AVAILABLE) collectDataICM20948();
 
   updateStatusBMP388();
   if (getStatusBMP388() == AVAILABLE) collectDataBMP388();
@@ -71,9 +67,9 @@ void Shart::send() {
 void Shart::reconnect() {
 
   // reconnect storage and sensors
-  if (getStatusBMP388()  == UNINITIALIZED) initBMP388();
-  if (getStatusADXL375() == UNINITIALIZED) initADXL375();
-  if (getStatusBNO055()  == UNINITIALIZED) initBNO055();
+  if (getStatusBMP388()    == UNINITIALIZED) initBMP388();
+  if (getStatusADXL375()   == UNINITIALIZED) initADXL375();
+  if (getStatusICM20948()  == UNINITIALIZED) initICM20948();
   
 }
 
@@ -90,7 +86,7 @@ bool Shart::getSystemStatus() {
 
 	return (
     getStatusBMP388()  == AVAILABLE &&
-		getStatusBNO055()  == AVAILABLE &&
+		getStatusICM20948()  == AVAILABLE &&
 		getStatusADXL375() == AVAILABLE &&
 		getStatusSD()      == AVAILABLE);
     
@@ -117,12 +113,6 @@ void Shart::initSerial() {
 
   // Begin the serial communication
   Serial.begin(USB_SERIAL_BAUD_RATE);
-
-  // NOTE: The following 'delay()' used to be " while(!Serial) { ; } "
-  // THIS ONLY WORKS WHEN YOU ARE CONNECTED TO THE TEENSY VIA USB AND YOU
-  // HAVE THE SERIAL MONITOR ON! IF THE TEENSY IS POWERED VIA THE 5V AND
-  // GND PINS, THIS CONDITION IS NEVER TRUE AND 
-  // THE PROGRAM WILL STAY IN THIS LOOP FOREVER.
 
   // Delay 200ms
   delay(200);

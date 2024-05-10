@@ -44,7 +44,6 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #include <Adafruit_BMP3XX.h>
 #include <Adafruit_ADXL375.h>
-//#include "ICM_20948.h" 
 #include <Teensy-ICM-20948.h>
 #include <UbloxGPS.h>
 
@@ -114,14 +113,14 @@ class Shart {
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // PRIVATE SENSOR MEMBERS
     // initializers, some have status passed by reference so that it can be updated if necessary
-    void initBNO055();
+    void initICM20948();
     void initBMP388();
     void initADXL375();
     void initGTU7();
 
     // collectors, all take a pointer to an array of floats (data in shart.h) and fill hard-coded array indices
     // can hard code indices in here for speed or use start_index for convenience
-    void collectDataBNO055();
+    void collectDataICM20948();
     void collectDataBMP388();
     void collectDataADXL375();
     void collectDataGTU7();
@@ -129,12 +128,12 @@ class Shart {
     
     // These perform simple checks on the sensors to tell if they are connected
     // If a sensor is not connected, we do not want to try to collect data from it.
-    void updateStatusBNO055();
+    void updateStatusICM20948();
     void updateStatusBMP388();
     void updateStatusADXL375();
    
     // Sensor status getters
-    Status getStatusBNO055();
+    Status getStatusICM20948();
     Status getStatusBMP388();
     Status getStatusADXL375();
 
@@ -146,7 +145,7 @@ class Shart {
 
     // Component statuses, note: We only care about components that need to be initialized! 
     Status BMPStatus = UNINITIALIZED;
-    Status BNOStatus = UNINITIALIZED;
+    Status ICMStatus = UNINITIALIZED;
     Status ADXLStatus = UNINITIALIZED;
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

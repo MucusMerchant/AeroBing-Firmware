@@ -14,8 +14,8 @@
 
 // nested ternaries to map packet types to their respective sizes: important for several functions
 #define TYPE_SIZE(type) ( \
-    type == TYPE_SENSOR ? 60 : \
-    type == TYPE_GPS    ? 32 : \
+    type == TYPE_SENSOR ? sizeof(sensor_p) : \
+    type == TYPE_GPS    ? sizeof(gps_p) : \
     type == TYPE_POOP   ? 0  : \
     0 )
 
@@ -32,8 +32,8 @@
 
 typedef unsigned char packet_t;
 
-// this is kinda sketch, only one sync byte, kind of two with the type byte
-// also size is no longer included in packet
+// Header common to all packet types
+// only one sync byte (0xAA), then a type, defined by the packet_t enum, then two checksum bytes
 struct packet_base {
 
     const unsigned char sync = SYNC;
@@ -45,6 +45,7 @@ struct packet_base {
 
 };
 
+// Sensor packet includes IMU data, altimeter data
 // if you make changes to this struct, they MUST respect packed alignment
 struct sensor_p : public packet_base {
 
@@ -53,15 +54,15 @@ struct sensor_p : public packet_base {
         int32_t adxl_acc_x;
         int32_t adxl_acc_y;
         int32_t adxl_acc_z;
-        float acc_x;
-        float acc_y;
-        float acc_z;
-        float gyr_x;
-        float gyr_y;
-        float gyr_z;
-        float mag_x;
-        float mag_y;
-        float mag_z;
+        float   acc_x;
+        float   acc_y;
+        float   acc_z;
+        float   gyr_x;
+        float   gyr_y;
+        float   gyr_z;
+        float   mag_x;
+        float   mag_y;
+        float   mag_z;
         float   temp;
         float   pres;
     } data;
