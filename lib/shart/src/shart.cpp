@@ -11,7 +11,8 @@ void Shart::init() {
   initSerial();
 
   // idk abt this
-  SPI.begin();
+  //SPI.begin();
+  //SPI1.begin();
 
   // initialize storage and transmission
   initSD();
@@ -102,6 +103,12 @@ void Shart::initPins() {
   // If the Teensy is on, this LED will be on.
   pinMode(ONBOARD_LED_PIN, OUTPUT);
   digitalWrite(ONBOARD_LED_PIN, HIGH);
+
+  // set chip select pins to low
+  digitalWrite(ICM_CS, LOW);
+  digitalWrite(BMP_CS, LOW);
+  digitalWrite(ADXL_CS, LOW);
+  delay(5);
 
 }
 

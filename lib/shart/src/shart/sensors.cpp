@@ -35,15 +35,16 @@
 *******************************************************************************/
 
 void Shart::initBNO055() {
-
-
-  if (icm.begin(ICM_CS, ICM_SPI_BUS) != ICM_20948_Stat_Ok) {
-    UPDATE_STATUS(BNOStatus, UNINITIALIZED)
-    ERROR("BNO initialization failed!")
-    return;
-  }
   
+  icm.init();
   UPDATE_STATUS(BNOStatus, AVAILABLE)
+  // if (icm.begin(ICM_CS, ICM_SPI_BUS) != ICM_20948_Stat_Ok) {
+  //   UPDATE_STATUS(BNOStatus, UNINITIALIZED)
+  //   ERROR("BNO initialization failed!")
+  //   return;
+  // }
+  
+  // UPDATE_STATUS(BNOStatus, AVAILABLE)
 
 }
 
@@ -109,11 +110,11 @@ void Shart::updateStatusBMP388() {
 
 void Shart::updateStatusBNO055() {
   // idk if this works bruh
-  if (icm.status != ICM_20948_Stat_Ok) {
-    UPDATE_STATUS(BNOStatus, UNINITIALIZED)
-    ERROR("BNO reading failed!")
-    return;
-  }
+  // if (icm.status != ICM_20948_Stat_Ok) {
+  //   UPDATE_STATUS(BNOStatus, UNINITIALIZED)
+  //   ERROR("BNO reading failed!")
+  //   return;
+  // }
 
   UPDATE_STATUS(BNOStatus, AVAILABLE)
   
@@ -177,16 +178,26 @@ void Shart::collectDataADXL375() {
 // collect data from the BNO055 over I2C
 void Shart::collectDataBNO055() {
 
-  // Sensor events defined by the Adafruit BNO library
-  sensor_packet.data.acc_x = icm.accX();
-  sensor_packet.data.acc_y = icm.accY();
-  sensor_packet.data.acc_z = icm.accZ();
-  sensor_packet.data.gyr_x = icm.gyrX();
-  sensor_packet.data.gyr_y = icm.gyrY();
-  sensor_packet.data.gyr_z = icm.gyrZ();
-  sensor_packet.data.mag_x = icm.magX();
-  sensor_packet.data.mag_y = icm.magY();
-  sensor_packet.data.mag_z = icm.magZ();
+  float gyro_x, gyro_y, gyro_z;
+  float accel_x, accel_y, accel_z;
+  float mag_x, mag_y, mag_z;
+
+  icm.task();
+  icm.readGyroData(&gyro_x, &gyro_y, &gyro_z);
+  icm.readAccelData(&accel_x, &accel_y, &accel_z);
+  icm.readMagData(&mag_x, &mag_y, &mag_z);
+
+  // icm.getAGMT();
+ 
+  sensor_packet.data.acc_x = accel_x;
+  sensor_packet.data.acc_y = accel_y;
+  sensor_packet.data.acc_z = accel_z;
+  sensor_packet.data.gyr_x = gyro_x;
+  sensor_packet.data.gyr_y = gyro_y;
+  sensor_packet.data.gyr_z = gyro_z;
+  sensor_packet.data.mag_x = mag_x;
+  sensor_packet.data.mag_y = mag_y;
+  sensor_packet.data.mag_z = mag_z;
   
 }
 

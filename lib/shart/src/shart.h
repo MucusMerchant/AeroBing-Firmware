@@ -44,7 +44,8 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #include <Adafruit_BMP3XX.h>
 #include <Adafruit_ADXL375.h>
-#include "ICM_20948.h" 
+//#include "ICM_20948.h" 
+#include <Teensy-ICM-20948.h>
 #include <UbloxGPS.h>
 
 // GPS pins, not that these are RX and TX on the microcontroller, NOT the GTU7 (i.e. GTU_RX_PIN goes to the TX pin on the GTU)
@@ -52,14 +53,14 @@
 #define GPS_BAUD_RATE 9600
 
 // SPI bus for BMP388, default SPI bus (shared)
-#define BMP_SPI_BUS  SPI
-#define ADXL_SPI_BUS SPI1
-#define ICM_SPI_BUS  SPI
+#define BMP_SPI_BUS  SPI1
+#define ADXL_SPI_BUS SPI
+#define ICM_SPI_BUS  SPI1
 
 // SPI chip select pins
-#define BMP_CS  0 // CS
-#define ADXL_CS 36 // fix
-#define ICM_CS  37
+#define BMP_CS  10 // CS
+#define ADXL_CS 39
+#define ICM_CS  0
 
 // LED pins
 #define ONBOARD_LED_PIN 13
@@ -141,7 +142,7 @@ class Shart {
     UbloxGps<NavPvtPacket> gps = UbloxGps<NavPvtPacket>(GPS_SERIAL_PORT);
     Adafruit_BMP3XX bmp = Adafruit_BMP3XX();
     Adafruit_ADXL375 adxl = Adafruit_ADXL375(ADXL_CS, &ADXL_SPI_BUS, 1);
-    ICM_20948_SPI icm = ICM_20948_SPI();
+    TeensyICM20948 icm = TeensyICM20948(ICM_CS, &ICM_SPI_BUS);
 
     // Component statuses, note: We only care about components that need to be initialized! 
     Status BMPStatus = UNINITIALIZED;
@@ -156,7 +157,6 @@ class Shart {
 
     // data functions, take byte arrays as arguments
     void saveData();
-    //void transmitData(uint8_t data[], uint8_t len);
     void transmitData();
 
     // status getters

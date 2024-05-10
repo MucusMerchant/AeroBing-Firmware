@@ -35,9 +35,12 @@ void setup() {
   threads.setSliceMicros(150);
 
   // create a thread for the reconnect loop, assign it low priority, in ticks (milliseconds)
-  threads.setTimeSlice(threads.addThread(reconnectLoop), 1);
+  //threads.setTimeSlice(threads.addThread(reconnectLoop), 1);
 
-  //while (!Serial.available()) {}
+  while (!Serial.available()) {
+    Serial.println("Enter anything to proceed");
+    delay(500);
+  }
 
 }
 

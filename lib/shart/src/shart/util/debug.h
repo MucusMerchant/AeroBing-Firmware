@@ -61,9 +61,12 @@
     int16_t s  = time%60;   time/=60; \
     int16_t m  = time%60;   time/=60; \
     sprintf(buf, "%02d:%02d:%02d:%03d", time, m, s, ms); Serial.print(buf); \
-    sprintf(buf, "  %+12d", sen.data.acc_x); Serial.print(buf); \
-    sprintf(buf, "  %+12d", sen.data.acc_y); Serial.print(buf); \
-    sprintf(buf, "  %+12d", sen.data.acc_z); Serial.print(buf); \
+    sprintf(buf, "  %+12d", sen.data.adxl_acc_x); Serial.print(buf); \
+    sprintf(buf, "  %+12d", sen.data.adxl_acc_y); Serial.print(buf); \
+    sprintf(buf, "  %+12d", sen.data.adxl_acc_z); Serial.print(buf); \
+    sprintf(buf, "  %+12.5f", sen.data.acc_x); Serial.print(buf); \
+    sprintf(buf, "  %+12.5f", sen.data.acc_y); Serial.print(buf); \
+    sprintf(buf, "  %+12.5f", sen.data.acc_z); Serial.print(buf); \
     sprintf(buf, "  %+12.5f", sen.data.gyr_x); Serial.print(buf); \
     sprintf(buf, "  %+12.5f", sen.data.gyr_y); Serial.print(buf); \
     sprintf(buf, "  %+12.5f", sen.data.gyr_z); Serial.print(buf); \
