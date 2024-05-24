@@ -27,20 +27,18 @@ void reconnectLoop() {
 }
 
 void setup() {
-
-  // Initialize SHART
-  shart.init();
   
   // configure threads for reconnect, set slice to 150 micros
   threads.setSliceMicros(150);
 
   // create a thread for the reconnect loop, assign it low priority, in ticks (milliseconds)
   //threads.setTimeSlice(threads.addThread(reconnectLoop), 1);
-
   while (!Serial.available()) {
     Serial.println("Enter anything to proceed");
     delay(500);
   }
+  
+  shart.init(micros());
 
 }
 

@@ -4,7 +4,9 @@ Shart::Shart() {
 }
 
 // Initialize some stuff plus everything on shart
-void Shart::init() {
+void Shart::init(uint32_t chipTimeOffset) {
+
+  this->chipTimeOffset = chipTimeOffset;
 
   initPins();
   // dont do this if no USB connection
@@ -31,15 +33,9 @@ void Shart::collect() {
   collectTime();
 
   // Only collect data when sensors are marked as AVAILABLE
-  updateStatusICM20948();
-  if (getStatusICM20948() == AVAILABLE) collectDataICM20948();
-
-  updateStatusBMP388();
-  if (getStatusBMP388() == AVAILABLE) collectDataBMP388();
-
-  updateStatusADXL375(); // comment out to test for efficiency
-  if (getStatusADXL375() == AVAILABLE) collectDataADXL375();
-
+  updateStatusICM20948(); if (getStatusICM20948() == AVAILABLE) collectDataICM20948();
+  updateStatusBMP388();   if (getStatusBMP388()   == AVAILABLE) collectDataBMP388();
+  updateStatusADXL375();  if (getStatusADXL375()  == AVAILABLE) collectDataADXL375();
   collectDataGTU7();
   
   PRINT_DATARATE()
@@ -85,10 +81,10 @@ void Shart::threadedReconnect() {
 bool Shart::getSystemStatus() {
 
 	return (
-    getStatusBMP388()  == AVAILABLE &&
-		getStatusICM20948()  == AVAILABLE &&
-		getStatusADXL375() == AVAILABLE &&
-		getStatusSD()      == AVAILABLE);
+    getStatusBMP388()   == AVAILABLE &&
+		getStatusICM20948() == AVAILABLE &&
+		getStatusADXL375()  == AVAILABLE &&
+		getStatusSD()       == AVAILABLE);
     
 }
 
@@ -123,7 +119,7 @@ void Shart::initSerial() {
 void Shart::collectTime() {
 
   // (we don't need microsecond precision, we are only collecting at < 1kHz)
-  sensor_packet.data.ms = millis();
-  gps_packet.data.ms    = millis();
+  sensor_packet.data.ms = micros() - chipTimeOffset;
+  gps_packet.data.ms    = micros() - chipTimeOffset;
 
 }

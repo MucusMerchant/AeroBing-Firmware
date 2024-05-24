@@ -39,6 +39,15 @@ If you add a debugging option, make sure to update the README.
 ### Data Specifications
 For details on the output data format, please refer to the `comms` library, which defines the packet headers, the structs for each packet type, and the checksum logic. These packets are designed to be packable, if possible, and should be easily parsable (e.g., using the `struct` library in Python). Python code to parse from serial should be available somewhere.
 
+### Device Drivers
+Most of the drivers that Shart depends on are modified versions of code found online. 
+
+- While we restructured the library, most of the underlying logic of the Ublox NEO-7M driver is heavily based on Loginov's code from GitHub.
+- The BMP3XX driver is essentially identical to the Adafruit BMP driver. Some changes have been made, including a (useful) chipID() function and a significant optimization; Adafruits's library uses FORCED mode by default, we changed this to NORMAL mode. We now avoid resetting configurations at each data read. The original may have intended to save power, but we found it too be intolerably slow.
+- The ICM20948 library is from Zane Lindstrom on GitHub, who seems to have some insider knowledge about Invensense's proprietary firmware (it was the only library that really worked with the DMP). We did not touch the underlying C API, but we made significant improvements to the C++ interface.
+- The ADXL375 library is unmodified from Adafruit.
+- Note: in the future, we may switch away from the Adafruit libraries
+
 ## Changelog
 ### Version 0.1
 - Created project outline

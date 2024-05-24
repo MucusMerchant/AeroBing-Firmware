@@ -237,7 +237,54 @@ bool Adafruit_BMP3XX::_init(void) {
   setOutputDataRate(BMP3_ODR_25_HZ);
 
   // don't do anything till we request a reading
-  the_sensor.settings.op_mode = BMP3_MODE_FORCED;
+  the_sensor.settings.op_mode = BMP3_MODE_NORMAL;
+
+ /* Used to select the settings user needs to change */
+  uint16_t settings_sel = 0;
+
+  /* Select the pressure and temperature sensor to be enabled */
+  the_sensor.settings.temp_en = BMP3_ENABLE;
+  settings_sel |= BMP3_SEL_TEMP_EN;
+  sensor_comp |= BMP3_TEMP;
+  if (_tempOSEnabled) {
+    settings_sel |= BMP3_SEL_TEMP_OS;
+  }
+
+  the_sensor.settings.press_en = BMP3_ENABLE;
+  settings_sel |= BMP3_SEL_PRESS_EN;
+  sensor_comp |= BMP3_PRESS;
+  if (_presOSEnabled) {
+    settings_sel |= BMP3_SEL_PRESS_OS;
+  }
+
+  if (_filterEnabled) {
+    settings_sel |= BMP3_SEL_IIR_FILTER;
+  }
+
+  if (_ODREnabled) {
+    settings_sel |= BMP3_SEL_ODR;
+  }
+
+  // set interrupt to data ready
+  // settings_sel |= BMP3_DRDY_EN_SEL | BMP3_LEVEL_SEL | BMP3_LATCH_SEL;
+
+  /* Set the desired sensor configuration */
+#ifdef BMP3XX_DEBUG
+  Serial.println("Setting sensor settings");
+#endif
+  rslt = bmp3_set_sensor_settings(settings_sel, &the_sensor);
+
+  if (rslt != BMP3_OK)
+    return false;
+
+  /* Set the power mode */
+  the_sensor.settings.op_mode = BMP3_MODE_NORMAL;
+#ifdef BMP3XX_DEBUG
+  Serial.println(F("Setting power mode"));
+#endif
+  rslt = bmp3_set_op_mode(&the_sensor);
+  if (rslt != BMP3_OK)
+    return false;
 
   return true;
 }
@@ -310,55 +357,7 @@ bool Adafruit_BMP3XX::performReading(void) {
   g_i2c_dev = i2c_dev;
   g_spi_dev = spi_dev;
   int8_t rslt;
-  /* Used to select the settings user needs to change */
-  uint16_t settings_sel = 0;
-  /* Variable used to select the sensor component */
-  uint8_t sensor_comp = 0;
-
-  /* Select the pressure and temperature sensor to be enabled */
-  the_sensor.settings.temp_en = BMP3_ENABLE;
-  settings_sel |= BMP3_SEL_TEMP_EN;
-  sensor_comp |= BMP3_TEMP;
-  if (_tempOSEnabled) {
-    settings_sel |= BMP3_SEL_TEMP_OS;
-  }
-
-  the_sensor.settings.press_en = BMP3_ENABLE;
-  settings_sel |= BMP3_SEL_PRESS_EN;
-  sensor_comp |= BMP3_PRESS;
-  if (_presOSEnabled) {
-    settings_sel |= BMP3_SEL_PRESS_OS;
-  }
-
-  if (_filterEnabled) {
-    settings_sel |= BMP3_SEL_IIR_FILTER;
-  }
-
-  if (_ODREnabled) {
-    settings_sel |= BMP3_SEL_ODR;
-  }
-
-  // set interrupt to data ready
-  // settings_sel |= BMP3_DRDY_EN_SEL | BMP3_LEVEL_SEL | BMP3_LATCH_SEL;
-
-  /* Set the desired sensor configuration */
-#ifdef BMP3XX_DEBUG
-  Serial.println("Setting sensor settings");
-#endif
-  rslt = bmp3_set_sensor_settings(settings_sel, &the_sensor);
-
-  if (rslt != BMP3_OK)
-    return false;
-
-  /* Set the power mode */
-  the_sensor.settings.op_mode = BMP3_MODE_FORCED;
-#ifdef BMP3XX_DEBUG
-  Serial.println(F("Setting power mode"));
-#endif
-  rslt = bmp3_set_op_mode(&the_sensor);
-  if (rslt != BMP3_OK)
-    return false;
-
+ 
   /* Variable used to store the compensated data */
   struct bmp3_data data;
 

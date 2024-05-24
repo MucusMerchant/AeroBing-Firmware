@@ -102,7 +102,7 @@
 class Shart {
   public:
     Shart();
-    void init();
+    void init(uint32_t chipTimeOffset);
     void collect(); // collect data 
     void send(); // save to SD card and transmit through radio to ground station
     void reconnect(); // non-threaded reconnects are here, for chips that share a bus
@@ -140,13 +140,15 @@ class Shart {
     // Sensor objects from respective libraries
     UbloxGps<NavPvtPacket> gps = UbloxGps<NavPvtPacket>(GPS_SERIAL_PORT);
     Adafruit_BMP3XX bmp = Adafruit_BMP3XX();
-    Adafruit_ADXL375 adxl = Adafruit_ADXL375(ADXL_CS, &ADXL_SPI_BUS, 1);
+    Adafruit_ADXL375 adxl = Adafruit_ADXL375(ADXL_CS, &ADXL_SPI_BUS);
     TeensyICM20948 icm = TeensyICM20948(ICM_CS, &ICM_SPI_BUS);
 
     // Component statuses, note: We only care about components that need to be initialized! 
     Status BMPStatus = UNINITIALIZED;
     Status ICMStatus = UNINITIALIZED;
     Status ADXLStatus = UNINITIALIZED;
+
+    uint32_t chipTimeOffset;
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // PRIVATE EXPORT MEMBERS

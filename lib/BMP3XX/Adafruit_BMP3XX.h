@@ -79,7 +79,7 @@ private:
   unsigned long _meas_end;
 
   uint8_t spixfer(uint8_t x);
-
+  uint8_t sensor_comp = 0;
   struct bmp3_dev the_sensor;
 };
 
