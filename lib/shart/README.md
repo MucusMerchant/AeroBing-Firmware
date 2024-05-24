@@ -78,7 +78,9 @@ Most of the drivers that Shart depends on are modified versions of code found on
 ### Version 0.7
 - radio communication protocol, including commands to send to the Teensy
 - switched to SDFat, faster sd library
-- TODO: command for (1) calibration and (2) collection, chip time initialized to 0
+### Version 1.0
+- TODO: overhaul of debugging and configuration system
+- TODO: improve timekeeping (switch to uint64_t, calibrate before transmit, etc.)
 
 
 

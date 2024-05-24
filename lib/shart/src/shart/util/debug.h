@@ -26,22 +26,19 @@
 // change variables later, redundancy with time vars
 #ifdef DEBUG_MODE_DATARATE
   #define DATARATE_VARS() \
-    int datapoints = 0; \
-    int rate = 0; \
-    int current, last;
+    int current, prev, num_datapoints;
   #define PRINT_DATARATE() \
-    datapoints++; \
-    rate++; \
-    current = millis(); \
-    if (current-last >= 1000) { \
-        last = current; \
-        Serial.print("[RATE] "); \
-        Serial.print(rate); \
-        Serial.print("Hz -----> "); \
-        Serial.print(datapoints); \
-        Serial.print(" datapoints\n"); \
-        rate = 0; \
-    } 
+    current = micros(); \
+    float rate = 1000000.0 / (current - prev); \
+    prev = current; \
+    num_datapoints++; \
+    if (num_datapoints % 1000 == 0) { \
+      Serial.print("[RATE] "); \
+      Serial.print(rate); \
+      Serial.print("Hz -----> "); \
+      Serial.print(num_datapoints); \
+      Serial.print(" datapoints\n"); }
+ 
 #else
   #define DATARATE_VARS()
   #define PRINT_DATARATE()

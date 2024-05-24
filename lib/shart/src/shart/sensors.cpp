@@ -7,8 +7,6 @@
 * Author: Andrew Shen-Costello
 *
 * Spring, 2024
-* TODO: Initialization for faster chips: don't want to consume more power than
-* necessary, i.e. set them to slower data rate if possible
 *
 * TODO: Consider switch to LSM6DSO32 (6DoF) + a magnetometer instead of a 9DoF chip
 * LSM6DSO32 must be set to high-performance mode
@@ -181,7 +179,6 @@ void Shart::collectDataICM20948() {
 void Shart::collectDataBMP388() {
 
   // take temperature and pressure, ignore altitude estimate to avoid expensive calculations
-  // library is still doing lots of compensation; maybe in the future do this in PP
   bmp.performReading();
   sensor_packet.data.temp = bmp.temperature; // in *C
   sensor_packet.data.pres = bmp.pressure; // in HPa
@@ -194,35 +191,3 @@ Status Shart::getStatusICM20948() { return ICMStatus; }
 Status Shart::getStatusBMP388() { return BMPStatus; }
 
 Status Shart::getStatusADXL375() { return ADXLStatus; }
-/* 
-
-CHANGES TO SENSOR LIBRARIES: these may need updates if new chips/libraries are used
-
-*** In bmp3.h ***
-int8_t bmp3_read_chip_id(struct bmp3_dev *dev);
-
-*** In bmp3.c ***
-int8_t bmp3_read_chip_id(struct bmp3_dev *dev)
-{
-    int8_t rslt;
-    uint8_t chip_id = 0;
-
-    // Check for null pointer in the device structure
-    rslt = null_ptr_check(dev);
-
-    // Proceed if null check is fine 
-    if (rslt == BMP3_OK)
-    {
-        // Read the chip-id of bmp3 sensor 
-        bmp3_get_regs(BMP3_REG_CHIP_ID, &chip_id, 1, dev);
-    }
-
-    return chip_id;
-}
-
-*** In Adafruit_BMP3XX.cpp ***
-uint8_t Adafruit_BMP3XX::chipID(void) { return bmp3_read_chip_id(&the_sensor); }
-
-*** Respective declarations in Adafruit_BMP3XX.h ***
-
-*/
