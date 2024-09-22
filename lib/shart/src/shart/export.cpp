@@ -108,6 +108,11 @@ void Shart::saveData() {
 
 }
 
+void Shart::truncateAndCloseFile() {
+  file.truncate();
+  file.close();
+}
+
 // Transmit binary data via radio, beware of endian-ness. Network standard is big endian, but no point in converting twice
 // TODO: packet should include a byte indicating the status of all sensors
 void Shart::transmitData() {

@@ -6,7 +6,7 @@
 　　　　　 |　 _  _,    mrrrp mrrau?
 　 　　　／` ミ＿xノ
 　　 　 /　　　 　 |
-　　　 /　   　　 ﾉ
+　　　 /　   　　 ﾉ     <--- my most important accomplishment in college
 　 　 │　　|　へ |
 　／￣|　　 \　\ \
 　| (￣ヽ＿_ヽ_) _)
@@ -79,8 +79,11 @@ Most of the drivers that Shart depends on are modified versions of code found on
 - radio communication protocol, including commands to send to the Teensy
 - switched to SDFat, faster sd library
 ### Version 1.0
-- TODO: overhaul of debugging and configuration system
+- TODO: important, get rid of ICM 'DMP' auto-calibration so we can do it ourselves :( thank u anyway @ZaneL
+- TODO: overhaul of debugging and configuration system is needed
+    - a clear distinction in config between usb mode and radio mode (for both sending and receiving packets)
 - TODO: improve timekeeping (switch to uint64_t, calibrate before transmit, etc.)
+- TODO: implement way to receive commands
 
 
 

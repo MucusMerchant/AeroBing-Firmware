@@ -15,6 +15,8 @@
 #include <TeensyThreads.h> // Multithreading library specific to the Teensyduino
 #include <shart.h> // The lovely shart library
 
+// note: multithreading functionality is no longer implemented in this version
+
 // Global Shart singleton to be used throughout program execution
 Shart shart; 
 
@@ -33,10 +35,12 @@ void setup() {
 
   // create a thread for the reconnect loop, assign it low priority, in ticks (milliseconds)
   //threads.setTimeSlice(threads.addThread(reconnectLoop), 1);
+  #ifndef START_ON_POWERUP
   while (!Serial.available()) {
     Serial.println("Enter anything to proceed");
     delay(500);
   }
+  #endif
   
   shart.init(micros());
 
@@ -52,5 +56,12 @@ void loop() {
 
   // Store and transmit collected data
   shart.send();
+
+  if (RADIO_SERIAL_PORT.available() >= 5) {
+    for (int i = 0; i < 5; i++) {
+      if (RADIO_SERIAL_PORT.read() != 0xAA) break;
+      shart.finish();
+    }
+  }
 
 }

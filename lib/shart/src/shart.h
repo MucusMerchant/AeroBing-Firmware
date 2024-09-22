@@ -61,7 +61,7 @@
 #define ADXL_CS 39
 #define ICM_CS  0
 
-// LED pins
+// LED pins (not implemented)
 #define ONBOARD_LED_PIN 13
 #define OK_LED_PIN 23
 #define BMP_LED_PIN 22
@@ -88,8 +88,8 @@
 // Definitions for SD
 #define SD_CONFIG                      SdioConfig(FIFO_SDIO) // Use Teensy SDIO
 #define LOG_INTERVAL_USEC              40 // Interval between points for 25 ksps.
-#define LOG_FILE_SIZE                  100000//536870912  // 512MB allocated before logging to save time
-#define RING_BUF_CAPACITY              400 * 512
+#define LOG_FILE_SIZE                  536870912  // 512MB allocated before logging to save time
+#define RING_BUF_CAPACITY              204800 //(400 * 512)
 #define SD_MAX_NUM_CONNECTION_ATTEMPTS 1
 #define LOG_FILENAME                   "data.poop"
 
@@ -108,6 +108,7 @@ class Shart {
     void reconnect(); // non-threaded reconnects are here, for chips that share a bus
     void threadedReconnect(); // this must be thread-safe, as it will not be running on the main thread
     bool getSystemStatus(); // return true if system ok
+    void finish();
 
   private:
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -158,6 +159,7 @@ class Shart {
 
     // data functions, take byte arrays as arguments
     void saveData();
+    void truncateAndCloseFile();
     void transmitData();
 
     // status getters
@@ -170,7 +172,7 @@ class Shart {
     
     //File data_file; // The data file on the SD card
     uint16_t sd_num_connection_attempts = 0;
-    uint8_t bigassbuffer[8192]; // buffer for radio TX
+    uint8_t bigassbuffer[2048]; // buffer for radio TX
 
     RadioStage radioStage = UNCONNECTED; // Radio stage
     Status SDStatus = UNINITIALIZED;

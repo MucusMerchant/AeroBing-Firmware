@@ -77,6 +77,14 @@ void Shart::threadedReconnect() {
   
 }
 
+// stuff to do when Shart wraps up
+void Shart::finish() {
+  truncateAndCloseFile();
+  
+  delay(1000);
+  exit(0);
+}
+
 // Check if all components marked available
 bool Shart::getSystemStatus() {
 

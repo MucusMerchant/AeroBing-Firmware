@@ -43,55 +43,6 @@
   #define DATARATE_VARS()
   #define PRINT_DATARATE()
 #endif
- 
-
-// Prints data (human-readable) to Serial
-// NOTE: this is somewhat obselete now that we have an actual communication protocol. consider deleting
-#ifdef DEBUG_MODE_SENSOR_DATA
-  #define PRINT_DATA(sen, gp) \
-    Serial.print("[SENSOR] "); \
-    char buf[25]; \
-    int time = sen.data.ms; \
-    int16_t ms = time%1000; time/=1000; \
-    int16_t s  = time%60;   time/=60; \
-    int16_t m  = time%60;   time/=60; \
-    sprintf(buf, "%02d:%02d:%02d:%03d", time, m, s, ms); Serial.print(buf); \
-    sprintf(buf, "  %+12d", sen.data.adxl_acc_x); Serial.print(buf); \
-    sprintf(buf, "  %+12d", sen.data.adxl_acc_y); Serial.print(buf); \
-    sprintf(buf, "  %+12d", sen.data.adxl_acc_z); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.acc_x); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.acc_y); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.acc_z); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.gyr_x); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.gyr_y); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.gyr_z); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.mag_x); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.mag_y); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.mag_z); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.temp); Serial.print(buf); \
-    sprintf(buf, "  %+12.5f", sen.data.pres); Serial.print(buf); \
-    Serial.print("\n");
-#elif defined(DEBUG_MODE_GPS_DATA)
-  #define PRINT_DATA(sen, gp) \
-    Serial.print("[GPS] "); \
-    char buf[25]; \
-    int time = gp.data.ms; \
-    int16_t ms = time%1000; time/=1000; \
-    int16_t s  = time%60;   time/=60; \
-    int16_t m  = time%60;   time/=60; \
-    sprintf(buf, "%02d:%02d:%02d:%03d", time, m, s, ms); Serial.print(buf); \
-    sprintf(buf, "  %+12d", gp.data.lat); Serial.print(buf); \
-    sprintf(buf, "  %+12d", gp.data.lon); Serial.print(buf); \
-    sprintf(buf, "  %+12d", gp.data.alt); Serial.print(buf); \
-    sprintf(buf, "  %+12d", gp.data.veln); Serial.print(buf); \
-    sprintf(buf, "  %+12d", gp.data.vele); Serial.print(buf); \
-    sprintf(buf, "  %+12d", gp.data.veld); Serial.print(buf); \
-    sprintf(buf, "  %+12d", gp.data.fix_type); Serial.print(buf); \
-    sprintf(buf, "  %+12d", gp.data.nsats); Serial.print(buf); \
-    Serial.print("\n");
-#else
-  #define PRINT_DATA(sen, gp)
-#endif
 
 // Print to serial when the status of a sensor changes
 #ifdef DEBUG_MODE_STATUS
