@@ -32,11 +32,11 @@
 void Shart::initICM20948() {
   
   if (!icm.init()) {
-    UPDATE_STATUS(ICMStatus, UNINITIALIZED)
-    ERROR("ICM initialization failed!")
+    UPDATE_STATUS(ICMStatus, UNINITIALIZED, SERIAL_PORT)
+    ERROR("ICM initialization failed!", SERIAL_PORT)
     return;
   }
-  UPDATE_STATUS(ICMStatus, AVAILABLE)
+  UPDATE_STATUS(ICMStatus, AVAILABLE, SERIAL_PORT)
 
 }
 
@@ -48,8 +48,8 @@ void Shart::initBMP388() {
   //delay(100);
   //if (!bmp.begin_SPI(BMP_CS, BMP_SCK, BMP_MISO, BMP_MOSI)) {
   if (!bmp.begin_SPI(BMP_CS, &BMP_SPI_BUS)) {
-    UPDATE_STATUS(BMPStatus, UNINITIALIZED)
-    ERROR("BMP initialization failed!")
+    UPDATE_STATUS(BMPStatus, UNINITIALIZED, SERIAL_PORT)
+    ERROR("BMP initialization failed!", SERIAL_PORT)
     return;
   }
 
@@ -59,7 +59,7 @@ void Shart::initBMP388() {
   bmp.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
   bmp.setOutputDataRate(BMP3_ODR_200_HZ);
 
-  UPDATE_STATUS(BMPStatus, AVAILABLE)
+  UPDATE_STATUS(BMPStatus, AVAILABLE, SERIAL_PORT)
 
 }
 
@@ -68,11 +68,11 @@ void Shart::initBMP388() {
 void Shart::initADXL375() {
 
   if (!adxl.begin()) {
-    UPDATE_STATUS(ADXLStatus, UNINITIALIZED);
-    ERROR("ADXL initialization failed!")
+    UPDATE_STATUS(ADXLStatus, UNINITIALIZED, SERIAL_PORT);
+    ERROR("ADXL initialization failed!", SERIAL_PORT)
     return;
   }
-  UPDATE_STATUS(ADXLStatus, AVAILABLE)
+  UPDATE_STATUS(ADXLStatus, AVAILABLE, SERIAL_PORT)
 
 }
 
@@ -89,24 +89,24 @@ void Shart::updateStatusBMP388() {
 
   // The chipID() function has been modified to ACTUALLY read the chip_id register
   if (bmp.chipID() != BMP_CHIP_ID) {
-    UPDATE_STATUS(BMPStatus, UNAVAILABLE)
-    ERROR("BMP not found!")
+    UPDATE_STATUS(BMPStatus, UNAVAILABLE, SERIAL_PORT)
+    ERROR("BMP not found!", SERIAL_PORT)
     return;
   }
 
-  UPDATE_STATUS(BMPStatus, AVAILABLE);
+  UPDATE_STATUS(BMPStatus, AVAILABLE, SERIAL_PORT);
 }
 
 // See if icm is connected (under the covers, checks device id)
 void Shart::updateStatusICM20948() {
   
   if (!icm.connected()) {
-    UPDATE_STATUS(ICMStatus, UNINITIALIZED)
-    ERROR("ICM reading failed!")
+    UPDATE_STATUS(ICMStatus, UNINITIALIZED, SERIAL_PORT)
+    ERROR("ICM reading failed!", SERIAL_PORT)
     return;
   }
 
-  UPDATE_STATUS(ICMStatus, AVAILABLE)
+  UPDATE_STATUS(ICMStatus, AVAILABLE, SERIAL_PORT)
   
 }
 
@@ -114,12 +114,12 @@ void Shart::updateStatusICM20948() {
 void Shart::updateStatusADXL375() {
 
   if (adxl.getDeviceID() != ADXL_CHIP_ID) {
-    UPDATE_STATUS(ADXLStatus, UNAVAILABLE);
-    ERROR("ADXL not found!")
+    UPDATE_STATUS(ADXLStatus, UNAVAILABLE, SERIAL_PORT);
+    ERROR("ADXL not found!", SERIAL_PORT)
     return;
   }
 
-  UPDATE_STATUS(ADXLStatus, AVAILABLE)
+  UPDATE_STATUS(ADXLStatus, AVAILABLE, SERIAL_PORT)
 
 }
 

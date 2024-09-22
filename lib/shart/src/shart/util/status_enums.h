@@ -20,24 +20,11 @@ typedef enum Status {
 inline const char* statusToString(Status s) {
 
   switch (s) {
-    case (UNINITIALIZED):
-      {
-        return "UNINITIALIZED";
-      }
-    case (UNAVAILABLE):
-      {
-        return "UNAVAILABLE";
-      }
-    case (PERMANENTLY_UNAVAILABLE):
-      {
-        return "PERMANENTLY_UNAVAILABLE";
-      }
-    case (AVAILABLE):
-      {
-        return "AVAILABLE";
-      }
-    default:
-      return "";
+    case (UNINITIALIZED):           return "UNINITIALIZED";
+    case (UNAVAILABLE):             return "UNAVAILABLE";
+    case (PERMANENTLY_UNAVAILABLE): return "PERMANENTLY_UNAVAILABLE";
+    case (AVAILABLE):               return "AVAILABLE";
+    default:                        return "";
   }
 }
 

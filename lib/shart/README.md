@@ -76,7 +76,7 @@ Most of the drivers that Shart depends on are modified versions of code found on
 - Added debugging macros
 - Migrated to PlatformIO
 ### Version 0.7
-- radio communication protocol, including commands to send to the Teensy
+- radio communication protocol
 - switched to SDFat, faster sd library
 ### Version 1.0
 - TODO: important, get rid of ICM 'DMP' auto-calibration so we can do it ourselves :( thank u anyway @ZaneL
@@ -84,6 +84,7 @@ Most of the drivers that Shart depends on are modified versions of code found on
     - a clear distinction in config between usb mode and radio mode (for both sending and receiving packets)
 - TODO: improve timekeeping (switch to uint64_t, calibrate before transmit, etc.)
 - TODO: implement way to receive commands
+- TODO: write logs to SD card to indicate errors/disconnection info
 
 
 

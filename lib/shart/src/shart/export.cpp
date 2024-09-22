@@ -30,36 +30,36 @@ void Shart::initSD() {
 
   // Have we exceeded our attempts? If so, set status and early return
   if (sd_num_connection_attempts > SD_MAX_NUM_CONNECTION_ATTEMPTS) {
-    UPDATE_STATUS(SDStatus, PERMANENTLY_UNAVAILABLE)
-    ERROR("SD card lost permanently!")
+    UPDATE_STATUS(SDStatus, PERMANENTLY_UNAVAILABLE, SERIAL_PORT)
+    ERROR("SD card lost permanently!", SERIAL_PORT)
     return;
   }
 
   if (!sd.begin(SD_CONFIG)) {
-    UPDATE_STATUS(SDStatus, UNAVAILABLE)
-    ERROR("SD card initialization failed!")
+    UPDATE_STATUS(SDStatus, UNAVAILABLE, SERIAL_PORT)
+    ERROR("SD card initialization failed!", SERIAL_PORT)
     return;
   }
 
   //sd.remove(LOG_FILENAME);
   // Open or create file - truncate existing file.
   if (!file.open(LOG_FILENAME, O_WRONLY | O_CREAT | O_TRUNC)) {
-    UPDATE_STATUS(SDStatus, UNAVAILABLE)
-    ERROR("Failed to open log file!")
+    UPDATE_STATUS(SDStatus, UNAVAILABLE, SERIAL_PORT)
+    ERROR("Failed to open log file!", SERIAL_PORT)
     return;
   }
   // File must be pre-allocated to avoid huge
   // delays searching for free clusters.
   if (!file.preAllocate(LOG_FILE_SIZE)) {
-    UPDATE_STATUS(SDStatus, UNAVAILABLE)
-    ERROR("pre-allocate failed!")
+    UPDATE_STATUS(SDStatus, UNAVAILABLE, SERIAL_PORT)
+    ERROR("pre-allocate failed!", SERIAL_PORT)
     file.close();
     return;
   }
   // initialize the RingBuf.
   sd_num_connection_attempts = 0;
   rb.begin(&file);
-  UPDATE_STATUS(SDStatus, AVAILABLE)
+  UPDATE_STATUS(SDStatus, AVAILABLE, SERIAL_PORT)
   return;
 
 }
@@ -76,22 +76,22 @@ void Shart::initRadio() {
 
 }
 
-// Save data to SD card
+// Save data to SD card, this code copied from example in SDFat library
 // this might be faster once QSPI is implemented w/ integrated memory.
 void Shart::saveData() {
 
   size_t n = rb.bytesUsed();
   if ((n + file.curPosition()) > (LOG_FILE_SIZE - 20)) {
-    UPDATE_STATUS(SDStatus, UNAVAILABLE)
-    ERROR("File full!")
+    UPDATE_STATUS(SDStatus, UNAVAILABLE, SERIAL_PORT)
+    ERROR("File full!", SERIAL_PORT)
     return;
   }
   if (n >= 512 && !file.isBusy()) {
     // Not busy only allows one sector before possible busy wait.
     // Write one sector from RingBuf to file.
     if (512 != rb.writeOut(512)) {
-      UPDATE_STATUS(SDStatus, UNAVAILABLE)
-      ERROR("Writeout failed!")
+      UPDATE_STATUS(SDStatus, UNAVAILABLE, SERIAL_PORT)
+      ERROR("Writeout failed!", SERIAL_PORT)
       return;
     }
   }
@@ -101,8 +101,8 @@ void Shart::saveData() {
   
   if (rb.getWriteError()) {
     // Error caused by too few free bytes in RingBuf.
-    UPDATE_STATUS(SDStatus, UNAVAILABLE)
-    ERROR("Write error!")
+    UPDATE_STATUS(SDStatus, UNAVAILABLE, SERIAL_PORT)
+    ERROR("Write error!", SERIAL_PORT)
     return;
   }
 
@@ -117,14 +117,8 @@ void Shart::truncateAndCloseFile() {
 // TODO: packet should include a byte indicating the status of all sensors
 void Shart::transmitData() {
 
-#ifdef DEBUG_MODE_BINARY
-  // send binary data to USB serial for testing
-  Serial.write((unsigned char *) &sensor_packet, sizeof(sensor_p));
-  if (gps_ready) Serial.write((unsigned char *) &gps_packet, sizeof(gps_p));
-#else
-  RADIO_SERIAL_PORT.write((unsigned char *) &sensor_packet, sizeof(sensor_p));
-  if (gps_ready) RADIO_SERIAL_PORT.write((unsigned char *) &gps_packet, sizeof(gps_p));
-#endif
+  SERIAL_PORT.write((unsigned char *) &sensor_packet, sizeof(sensor_p));
+  if (gps_ready) SERIAL_PORT.write((unsigned char *) &gps_packet, sizeof(gps_p));
 
 }
 

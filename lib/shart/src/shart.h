@@ -88,7 +88,7 @@
 // Definitions for SD
 #define SD_CONFIG                      SdioConfig(FIFO_SDIO) // Use Teensy SDIO
 #define LOG_INTERVAL_USEC              40 // Interval between points for 25 ksps.
-#define LOG_FILE_SIZE                  536870912  // 512MB allocated before logging to save time
+#define LOG_FILE_SIZE                  536870912  // 512MB allocated before logging to save time, maybe increase on launch day
 #define RING_BUF_CAPACITY              204800 //(400 * 512)
 #define SD_MAX_NUM_CONNECTION_ATTEMPTS 1
 #define LOG_FILENAME                   "data.poop"
@@ -98,6 +98,15 @@
 
 // USB serial baud rate
 #define USB_SERIAL_BAUD_RATE 9600
+#define USB_SERIAL_PORT Serial
+
+// SERIAL_PORT is the port we use for all external serial communication. It is the radio serial port
+// by default, but if we specify USB_SERIAL_MODE in debug.config, we will use USB serial instead.
+#ifdef USB_SERIAL_MODE
+  #define SERIAL_PORT USB_SERIAL_PORT
+#else
+  #define SERIAL_PORT RADIO_SERIAL_PORT
+#endif
 
 class Shart {
   public:

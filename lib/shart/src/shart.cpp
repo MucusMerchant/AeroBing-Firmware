@@ -44,9 +44,6 @@ void Shart::collect() {
 
 void Shart::send() {
 
-  // Print data to usb serial debugging on
-  PRINT_DATA(sensor_packet, gps_packet)
-
   // Generate checksums for each packet
   CHECKSUM(sensor_packet)
   CHECKSUM(gps_packet)
@@ -112,7 +109,7 @@ void Shart::initPins() {
 
 }
 
-// Initializes serial monitors with the specified baud rate
+// Initializes serial bus with the specified baud rate
 void Shart::initSerial() {
 
   // Begin the serial communication
