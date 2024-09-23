@@ -1,20 +1,18 @@
 #include "shart.h"
 
 Shart::Shart() {
+  // meow
 }
 
 // Initialize some stuff plus everything on shart
-void Shart::init(uint32_t chipTimeOffset) {
+void Shart::init() {
 
-  this->chipTimeOffset = chipTimeOffset;
+  this->chipTimeOffset = micros();
 
+  // initialize pins, storage, and transmission
   initPins();
-  // dont do this if no USB connection
   initSerial();
-
-  // initialize storage and transmission
   initSD();
-  initRadio();
 
   // initialize sensors
   initICM20948();
@@ -22,14 +20,30 @@ void Shart::init(uint32_t chipTimeOffset) {
   initADXL375();
   initGTU7();
 
+  #ifndef START_ON_POWERUP
+  awaitStart();
+  #endif
+
+}
+
+// Wait until 5 0xBB bytes are received
+void Shart::awaitStart() {
+  while (1) {
+    if (SERIAL_PORT.available() >= 5) {
+      for (int i = 0; i < 5; i++) {
+        if (SERIAL_PORT.read() != 0xBB) break;
+        if (i == 4) return;
+      }
+    }
+  }
 }
 
 void Shart::collect() {
 
-  // Reset all data values between each read
+  // Reset all data values between each read?
   //memset(data.f, 0, NUM_DATA_POINTS * sizeof(float));
 
-  // Get time since program start in ms
+  // Get time since program start in us
   collectTime();
 
   // Only collect data when sensors are marked as AVAILABLE
@@ -50,7 +64,7 @@ void Shart::send() {
 
   // Write to flash, send to radio
   if (getStatusSD() != PERMANENTLY_UNAVAILABLE) saveData();
-  transmitData(); // check radio stage
+  transmitData(); // check radio stage?
   // set gps_ready flag to false no matter what
   gps_ready = false;
 
@@ -75,11 +89,17 @@ void Shart::threadedReconnect() {
 }
 
 // stuff to do when Shart wraps up
-void Shart::finish() {
-  truncateAndCloseFile();
-  
-  delay(1000);
-  exit(0);
+void Shart::maybeFinish() {
+  if (SERIAL_PORT.available() >= 5) {
+    for (int i = 0; i < 5; i++) {
+      if (SERIAL_PORT.read() != 0xAA) return;
+    }
+    file.truncate();
+    file.close();
+    delay(1000);
+    exit(0);
+  }
+  // meow
 }
 
 // Check if all components marked available
@@ -112,19 +132,20 @@ void Shart::initPins() {
 // Initializes serial bus with the specified baud rate
 void Shart::initSerial() {
 
-  // Begin the serial communication
-  Serial.begin(USB_SERIAL_BAUD_RATE);
-
-  // Delay 200ms
-  delay(200);
+  #ifdef USB_SERIAL_MODE
+    USB_SERIAL_PORT.begin(USB_SERIAL_BAUD_RATE);
+    delay(200);
+  #else
+    initRadio();
+  #endif
 
 }
 
 // get current chip time in milliseconds
 void Shart::collectTime() {
 
-  // (we don't need microsecond precision, we are only collecting at < 1kHz)
-  sensor_packet.data.ms = micros() - chipTimeOffset;
-  gps_packet.data.ms    = micros() - chipTimeOffset;
+  // populate packets with current time minus offset from start
+  sensor_packet.data.us = micros() - chipTimeOffset;
+  gps_packet.data.us    = micros() - chipTimeOffset;
 
 }

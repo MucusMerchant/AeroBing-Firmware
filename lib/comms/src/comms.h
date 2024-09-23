@@ -51,7 +51,7 @@ struct packet_base {
 struct sensor_p : public packet_base {
 
     struct {
-        uint32_t ms;
+        uint32_t us;
         int32_t adxl_acc_x;
         int32_t adxl_acc_y;
         int32_t adxl_acc_z;
@@ -75,7 +75,7 @@ struct sensor_p : public packet_base {
 struct gps_p : public packet_base {
 
     struct {
-        uint32_t      ms;
+        uint32_t      us;
         int32_t       lat;
         int32_t       lon;
         int32_t       alt;

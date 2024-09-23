@@ -44,7 +44,7 @@ void Shart::initICM20948() {
 // TODO: consider power cycling to avoid issues with clock synchronization
 void Shart::initBMP388() {
 
-  // Initialize in software SPI mode
+  // Initialize in hardware SPI mode
   //delay(100);
   //if (!bmp.begin_SPI(BMP_CS, BMP_SCK, BMP_MISO, BMP_MOSI)) {
   if (!bmp.begin_SPI(BMP_CS, &BMP_SPI_BUS)) {

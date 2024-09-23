@@ -8,10 +8,13 @@ void Shart::initGTU7() {
 }
 
 // Collect data from the GTU7
+// Here we are checking if there is new data from the GPS
+// If we have new data, we populate shart's packet and flag it to be written to SD and sent to serial
 void Shart::collectDataGTU7() {
 
   // UBX protocol for GPS data
   gps.update();
+  
   if (gps.isReady()) {
     const NavPvtPacket &packet = gps.getPacket();
     gps_packet.data.lat = packet.lat;
@@ -29,6 +32,8 @@ void Shart::collectDataGTU7() {
     gps_packet.data.fix_type = packet.fixType;
     gps_packet.data.valid = packet.valid;
     gps_packet.data.flags = packet.flags;
+
+    // flag packet to be sent at this iteration of the loop
     gps_ready = true;
   }
 

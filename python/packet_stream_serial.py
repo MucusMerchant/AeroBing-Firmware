@@ -103,8 +103,8 @@ if __name__ == "__main__":
         #"""
         if packet_type == TYPE_SENSOR:
             print("[SENSOR] " + str(packet))
-        #elif packet_type == TYPE_GPS:
-            #print("[GPS] " + str(packet[-1]))
+        elif packet_type == TYPE_GPS:
+            print("[GPS] " + str(packet))
         else:
             continue
         #"""

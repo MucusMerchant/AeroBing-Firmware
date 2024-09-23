@@ -49,7 +49,7 @@
 
 // GPS pins, not that these are RX and TX on the microcontroller, NOT the GTU7 (i.e. GTU_RX_PIN goes to the TX pin on the GTU)
 #define GPS_SERIAL_PORT Serial2
-#define GPS_BAUD_RATE 9600
+#define GPS_BAUD_RATE   9600
 
 // SPI bus for BMP388, default SPI bus (shared)
 #define BMP_SPI_BUS  SPI1
@@ -102,6 +102,7 @@
 
 // SERIAL_PORT is the port we use for all external serial communication. It is the radio serial port
 // by default, but if we specify USB_SERIAL_MODE in debug.config, we will use USB serial instead.
+// This means we will usually not use both radio and usb serial
 #ifdef USB_SERIAL_MODE
   #define SERIAL_PORT USB_SERIAL_PORT
 #else
@@ -111,13 +112,13 @@
 class Shart {
   public:
     Shart();
-    void init(uint32_t chipTimeOffset);
+    void init();
     void collect(); // collect data 
     void send(); // save to SD card and transmit through radio to ground station
     void reconnect(); // non-threaded reconnects are here, for chips that share a bus
     void threadedReconnect(); // this must be thread-safe, as it will not be running on the main thread
     bool getSystemStatus(); // return true if system ok
-    void finish();
+    void maybeFinish(); // check if ground station has asked us to stop shart
 
   private:
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -148,14 +149,14 @@ class Shart {
     Status getStatusADXL375();
 
     // Sensor objects from respective libraries
-    UbloxGps<NavPvtPacket> gps = UbloxGps<NavPvtPacket>(GPS_SERIAL_PORT);
-    Adafruit_BMP3XX bmp = Adafruit_BMP3XX();
-    Adafruit_ADXL375 adxl = Adafruit_ADXL375(ADXL_CS, &ADXL_SPI_BUS);
-    TeensyICM20948 icm = TeensyICM20948(ICM_CS, &ICM_SPI_BUS);
+    UbloxGps<NavPvtPacket> gps  = UbloxGps<NavPvtPacket>(GPS_SERIAL_PORT);
+    Adafruit_BMP3XX        bmp  = Adafruit_BMP3XX();
+    Adafruit_ADXL375       adxl = Adafruit_ADXL375(ADXL_CS, &ADXL_SPI_BUS);
+    TeensyICM20948         icm  = TeensyICM20948(ICM_CS, &ICM_SPI_BUS);
 
     // Component statuses, note: We only care about components that need to be initialized! 
-    Status BMPStatus = UNINITIALIZED;
-    Status ICMStatus = UNINITIALIZED;
+    Status BMPStatus  = UNINITIALIZED;
+    Status ICMStatus  = UNINITIALIZED;
     Status ADXLStatus = UNINITIALIZED;
 
     uint32_t chipTimeOffset;
@@ -168,7 +169,6 @@ class Shart {
 
     // data functions, take byte arrays as arguments
     void saveData();
-    void truncateAndCloseFile();
     void transmitData();
 
     // status getters
@@ -197,6 +197,8 @@ class Shart {
     // The current and previous times as recorded by a 'micros()' call
     uint32_t current_time = 0;
 
+    // other initializers
+    void awaitStart();
     void initPins();
     void initSerial();
 

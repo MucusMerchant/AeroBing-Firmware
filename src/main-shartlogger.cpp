@@ -35,14 +35,17 @@ void setup() {
 
   // create a thread for the reconnect loop, assign it low priority, in ticks (milliseconds)
   //threads.setTimeSlice(threads.addThread(reconnectLoop), 1);
+  
+  shart.init();
+
+  // this is after init because the serial port needs to be initialized before we can read any bytes
   #ifndef START_ON_POWERUP
-  while (!Serial.available()) {
-    Serial.println("Enter anything to proceed");
+  while (!SERIAL_PORT.available()) {
+    SERIAL_PORT.println("Enter anything to proceed");
     delay(500);
   }
   #endif
   
-  shart.init(micros());
 
 }
 
@@ -57,11 +60,7 @@ void loop() {
   // Store and transmit collected data
   shart.send();
 
-  if (RADIO_SERIAL_PORT.available() >= 5) {
-    for (int i = 0; i < 5; i++) {
-      if (RADIO_SERIAL_PORT.read() != 0xAA) break;
-      shart.finish();
-    }
-  }
+  // maybe finish?
+  shart.maybeFinish();
 
 }
