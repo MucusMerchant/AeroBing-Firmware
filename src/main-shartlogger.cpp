@@ -37,14 +37,6 @@ void setup() {
   //threads.setTimeSlice(threads.addThread(reconnectLoop), 1);
   
   shart.init();
-
-  // this is after init because the serial port needs to be initialized before we can read any bytes
-  #ifndef START_ON_POWERUP
-  while (!SERIAL_PORT.available()) {
-    SERIAL_PORT.println("Enter anything to proceed");
-    delay(500);
-  }
-  #endif
   
 
 }

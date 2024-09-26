@@ -10,9 +10,11 @@ SYNC_BYTE   = b'\xaa'
 TYPE_SENSOR = b'\x0b'
 TYPE_GPS    = b'\xca'
 
+FILENAME = 'python/out.poop'
+
 # struct specifications following documentation at https://docs.python.org/3/library/struct.html
 PACKET_SPEC = {
-    TYPE_SENSOR : (60, '<I3i11f'), 
+    TYPE_SENSOR : (56, '<I11f3h2B'), 
     TYPE_GPS    : (52, '<I6i3Iif4B'),
 }
 
@@ -24,6 +26,7 @@ class PacketStream:
         self.device = serial.Serial(None, baudrate)
         self.device.port = port
         self.error_state = 0
+        self.file = open(FILENAME, 'wb')
 
     def begin(self):
         print(f"Opening port {self.device.port}...", end="", flush=True)
@@ -63,7 +66,11 @@ class PacketStream:
                     packet_info = packet_types[packet_type_byte]
                     packet_size = packet_info[0]
                     packet_data = self.device.read(packet_size)
-                        
+
+                    self.file.write(sync_byte + packet_type_byte + bytes([received_checksum_a, received_checksum_b]))
+                    self.file.write(packet_data)
+                    self.file.flush()
+                    # or os.fsync(self.file.fileno())
                     calculated_checksum_a, calculated_checksum_b = self.calculate_checksum(packet_data)
 
                     if (received_checksum_a, received_checksum_b) == (calculated_checksum_a, calculated_checksum_b):
@@ -77,7 +84,8 @@ class PacketStream:
                     self.error_state = 2
 
         # NO BYTES AVAILABLE TO READ
-        self.error_state = 3
+        else:
+            self.error_state = 3
         return None, None
     
     def send(self, data):
@@ -90,7 +98,6 @@ class PacketStream:
 if __name__ == "__main__":
     radio_serial = PacketStream(SERIAL_PORT, SERIAL_BAUD)
     radio_serial.begin()
-    #radio_serial.send(b'\AA')
     packets = 0
     fails = 0
     start = time.time()

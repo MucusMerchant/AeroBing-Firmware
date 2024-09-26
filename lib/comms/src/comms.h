@@ -51,21 +51,23 @@ struct packet_base {
 struct sensor_p : public packet_base {
 
     struct {
-        uint32_t us;
-        int32_t adxl_acc_x;
-        int32_t adxl_acc_y;
-        int32_t adxl_acc_z;
-        float acc_x;
-        float acc_y;
-        float acc_z;
-        float gyr_x;
-        float gyr_y;
-        float gyr_z;
-        float mag_x;
-        float mag_y;
-        float mag_z;
-        float temp;
-        float pres;
+        uint32_t      us;   
+        float         acc_x;
+        float         acc_y;
+        float         acc_z;
+        float         gyr_x;
+        float         gyr_y;
+        float         gyr_z;
+        float         mag_x;
+        float         mag_y;
+        float         mag_z;
+        float         temp;
+        float         pres;
+        int16_t       adxl_acc_x;
+        int16_t       adxl_acc_y;
+        int16_t       adxl_acc_z;
+        unsigned char status;
+        unsigned char reserved;
     } data;
 
     sensor_p() : packet_base(TYPE_SENSOR), data{} {}

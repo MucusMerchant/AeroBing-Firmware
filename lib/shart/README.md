@@ -80,11 +80,17 @@ Most of the drivers that Shart depends on are modified versions of code found on
 - radio communication protocol
 - switched to SDFat, faster sd library
 ### Version 1.0
-- TODO: important, get rid of ICM 'DMP' auto-calibration so we can do it ourselves :( thank u anyway @ZaneL
 - TODO (done): a clear distinction in config between usb mode and radio mode (for both sending and receiving packets)
 - TODO: improve timekeeping (switch to uint64_t, calibrate before transmit, etc.)
 - TODO: implement way to receive commands
 - TODO: write logs to SD card to indicate errors/sensor status info (can also be bitmask built into sensor packet)
+- TODO: detect and log when radio disconnects
+- TODO: we currently lose a lot of packets in wireless mode. reduce packet size or datarate (or increase radio transmission speed at cost of signal integrity)
+- TODO: replace icm20948 with lsm6dO32
+    - Shart will pass RAW data (int16_t) to the ground station. Python will handle conversion from raw to actual data (we will refer to the _read() function at https://github.com/adafruit/Adafruit_LSM6DS/blob/master/Adafruit_LSM6DSO32.cpp).
+    - This switch is a significant leap of faith: we are doing our own IMU calibration now
+    - Take temperature into account (?)
+
 
 
 

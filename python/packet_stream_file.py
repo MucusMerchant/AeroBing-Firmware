@@ -8,7 +8,7 @@ import os
 # this will work if u got the file in the 'python' folder and your working directory is Aerobing-Firmware
 os.chdir(os.getcwd()+"/python")
 
-FILE_NAME = "data.poop"
+FILE_NAME = "out.poop"
 SYNC_BYTE   = b'\xaa'
 TYPE_SENSOR = b'\x0b'
 TYPE_GPS    = b'\xca'
@@ -17,7 +17,7 @@ TYPE_GPS    = b'\xca'
 # note that endian-ness matters
 # these structs are defined in comms.h in the Aerobing firmware folder
 PACKET_SPEC = {
-    TYPE_SENSOR : (60, '<I3i11f'), 
+    TYPE_SENSOR : (56, '<I11f3h2B'), 
     TYPE_GPS    : (52, '<I6i3Iif4B'),
 }
 
@@ -62,8 +62,8 @@ class PacketStream:
                 else:
                     print("Invalid packet type byte:", packet_type_byte)
                     self.error_state = 2
-
-        self.error_state = 3 # error state 2 if we are at eof
+        else:
+            self.error_state = 3 # error state 2 if we are at eof
         return None, None
     
 # note to Julie: barometer data is stored in the last 2 spots of the sensor tuple (temp in C and pressure in Pa)
