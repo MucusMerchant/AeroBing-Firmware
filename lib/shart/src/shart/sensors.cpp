@@ -29,6 +29,17 @@
 *
 *******************************************************************************/
 
+
+//
+void Shart::initLSM6DSO32(){
+  lsm.begin_I2C(106U, &LSM_I2C_BUS);
+  lsm.setAccelRange(LSM6DSO32_ACCEL_RANGE_32_G);
+  lsm.setAccelDataRate(LSM6DS_RATE_208_HZ);
+  lsm.setGyroRange(LSM6DS_GYRO_RANGE_2000_DPS);
+  lsm.setGyroDataRate(LSM6DS_RATE_208_HZ);
+  
+}
+
 void Shart::initICM20948() {
   
   if (!icm.init()) {
@@ -62,6 +73,7 @@ void Shart::initBMP388() {
   UPDATE_STATUS(BMPStatus, AVAILABLE, SERIAL_PORT)
 
 }
+
 
 // ADXL375 range is fixed at +/-200G
 // TODO: maybe try power cycling here: clock synchonization gets messed up sometimes if SCL gets unplugged
@@ -145,6 +157,20 @@ void Shart::collectDataADXL375() {
   sensor_packet.data.adxl_acc_y = y;
   sensor_packet.data.adxl_acc_z = z;
 
+}
+
+//lsm data collection
+void Shart::collectDataLSM6DSO32(){
+  
+  lsm.getRaw();
+  lsm.rawGyroX;
+  sensor_packet.data.acc_x = lsm.rawAccX;
+  sensor_packet.data.acc_y = lsm.rawAccY;
+  sensor_packet.data.acc_z = lsm.rawAccZ;
+  sensor_packet.data.gyr_x = lsm.rawGyroX;
+  sensor_packet.data.gyr_y = lsm.rawGyroY;
+  sensor_packet.data.gyr_z = lsm.rawGyroZ;
+  //sensor_packet.data.temp_lsm  = temp.temperature;
 }
 
 // collect data from the ICM w/ modified ZaneL's library

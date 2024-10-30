@@ -52,12 +52,12 @@ struct sensor_p : public packet_base {
 
     struct {
         uint32_t      us;   
-        float         acc_x;
-        float         acc_y;
-        float         acc_z;
-        float         gyr_x;
-        float         gyr_y;
-        float         gyr_z;
+        int16_t       acc_x;
+        int16_t       acc_y;
+        int16_t       acc_z;
+        int16_t       gyr_x;
+        int16_t       gyr_y;
+        int16_t       gyr_z;
         float         mag_x;
         float         mag_y;
         float         mag_z;

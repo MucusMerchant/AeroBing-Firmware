@@ -45,6 +45,7 @@
 #include <Adafruit_BMP3XX.h>
 #include <Adafruit_ADXL375.h>
 #include <Teensy-ICM-20948.h>
+#include <Adafruit_LSM6DSO32.h>
 #include <UbloxGPS.h>
 
 // GPS pins, not that these are RX and TX on the microcontroller, NOT the GTU7 (i.e. GTU_RX_PIN goes to the TX pin on the GTU)
@@ -55,6 +56,7 @@
 #define BMP_SPI_BUS  SPI1
 #define ADXL_SPI_BUS SPI
 #define ICM_SPI_BUS  SPI1
+#define LSM_I2C_BUS Wire
 
 // SPI chip select pins
 #define BMP_CS  10 // CS
@@ -125,6 +127,7 @@ class Shart {
   // PRIVATE SENSOR MEMBERS
     // initializers, some have status passed by reference so that it can be updated if necessary
     void initICM20948();
+    void initLSM6DSO32();
     void initBMP388();
     void initADXL375();
     void initGTU7();
@@ -132,6 +135,7 @@ class Shart {
     // collectors, all take a pointer to an array of floats (data in shart.h) and fill hard-coded array indices
     // can hard code indices in here for speed or use start_index for convenience
     void collectDataICM20948();
+    void collectDataLSM6DSO32();
     void collectDataBMP388();
     void collectDataADXL375();
     void collectDataGTU7();
@@ -153,11 +157,13 @@ class Shart {
     Adafruit_BMP3XX        bmp  = Adafruit_BMP3XX();
     Adafruit_ADXL375       adxl = Adafruit_ADXL375(ADXL_CS, &ADXL_SPI_BUS);
     TeensyICM20948         icm  = TeensyICM20948(ICM_CS, &ICM_SPI_BUS);
+    Adafruit_LSM6DSO32     lsm  = Adafruit_LSM6DSO32();
 
     // Component statuses, note: We only care about components that need to be initialized! 
     Status BMPStatus  = UNINITIALIZED;
     Status ICMStatus  = UNINITIALIZED;
     Status ADXLStatus = UNINITIALIZED;
+    Status LSMStatus  = UNINITIALIZED;
 
     uint32_t chipTimeOffset;
 

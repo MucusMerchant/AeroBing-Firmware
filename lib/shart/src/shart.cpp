@@ -16,6 +16,7 @@ void Shart::init() {
 
   // initialize sensors
   initICM20948();
+  initLSM6DSO32();
   initBMP388();
   initADXL375();
   initGTU7();
@@ -51,6 +52,7 @@ void Shart::collect() {
   updateStatusBMP388();   if (getStatusBMP388()   == AVAILABLE) collectDataBMP388();
   updateStatusADXL375();  if (getStatusADXL375()  == AVAILABLE) collectDataADXL375();
   collectDataGTU7();
+  collectDataICM20948();
   
   PRINT_DATARATE()
 

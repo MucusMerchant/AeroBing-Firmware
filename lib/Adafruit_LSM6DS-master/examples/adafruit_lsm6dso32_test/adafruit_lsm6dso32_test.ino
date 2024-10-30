@@ -6,9 +6,9 @@
 // For SPI mode, we need a CS pin
 #define LSM_CS 10
 // For software-SPI mode we need SCK/MOSI/MISO pins
-#define LSM_SCK 27
-#define LSM_MISO 1
-#define LSM_MOSI 26
+#define LSM_SCK 13
+#define LSM_MISO 12
+#define LSM_MOSI 11
 
 Adafruit_LSM6DSO32 dso32;
 void setup(void) {
@@ -18,14 +18,13 @@ void setup(void) {
 
   Serial.println("Adafruit LSM6DSO32 test!");
 
-  while (!dso32.begin_I2C()) {
-  //while (!dso32.begin_SPI(LSM_CS)) {
-    delay(100);
-  //while (!dso32.begin_SPI(LSM_CS, LSM_SCK, LSM_MISO, LSM_MOSI)) {
-    Serial.println("Failed to find LSM6DSO32 chip");
-    //while (1) {
-      //delay(10);
-    //}
+  if (!dso32.begin_I2C()) {
+    // if (!dso32.begin_SPI(LSM_CS)) {
+    // if (!dso32.begin_SPI(LSM_CS, LSM_SCK, LSM_MISO, LSM_MOSI)) {
+    // Serial.println("Failed to find LSM6DSO32 chip");
+    while (1) {
+      delay(10);
+    }
   }
 
   Serial.println("LSM6DSO32 Found!");
@@ -149,25 +148,31 @@ void setup(void) {
 void loop() {
 
   //  /* Get a new normalized sensor event */
-  dso32.getRaw();
+  sensors_event_t accel;
+  sensors_event_t gyro;
+  sensors_event_t temp;
+  dso32.getEvent(&accel, &gyro, &temp);
 
+  Serial.print("\t\tTemperature ");
+  Serial.print(temp.temperature);
+  Serial.println(" deg C");
 
   /* Display the results (acceleration is measured in m/s^2) */
   Serial.print("\t\tAccel X: ");
-  Serial.print(dso32.rawAccX);
+  Serial.print(accel.acceleration.x);
   Serial.print(" \tY: ");
-  Serial.print(dso32.rawAccY);
+  Serial.print(accel.acceleration.y);
   Serial.print(" \tZ: ");
-  Serial.print(dso32.rawAccZ);
+  Serial.print(accel.acceleration.z);
   Serial.println(" m/s^2 ");
 
   /* Display the results (rotation is measured in rad/s) */
   Serial.print("\t\tGyro X: ");
-  Serial.print(dso32.rawGyroX);
+  Serial.print(gyro.gyro.x);
   Serial.print(" \tY: ");
-  Serial.print(dso32.rawGyroY);
+  Serial.print(gyro.gyro.y);
   Serial.print(" \tZ: ");
-  Serial.print(dso32.rawGyroZ);
+  Serial.print(gyro.gyro.z);
   Serial.println(" radians/s ");
   Serial.println();
 
