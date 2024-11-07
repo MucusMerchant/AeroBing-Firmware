@@ -9,11 +9,12 @@
 #include "Icm20948MPUFifoControl.h"
 
 #define SPI_DEV SPI1
+#define NO_PRINT
 
 /*************************************************************************
   Defines
 *************************************************************************/
-
+// default values are specific to our current implementation.
 typedef struct {
   int cs_pin                  = 0;
   int spi_speed               = 1000000;

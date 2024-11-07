@@ -27,13 +27,14 @@ At a high level, the system's functionality can be separated into two parts: col
 More details can be found in comments throughout the code. To use the library, simply include `shart.h`.
 
 ### Debugging
-This library relies entirely on macros for debugging. The actual code for the macros is in `debug.h`. To enable and disable debugging settings, either uncomment or comment the respective definitions in the `debug.config` file:
+This library relies entirely on macros for debugging. The actual code for the macros is in `debug.h`. To enable and disable debugging settings, either uncomment or comment the respective definitions in the `shart.config` file:
 
 - `DEBUG_MODE_ERROR` prints errors to serial, e.g. initialization or SD write failures.
 - `DEBUG_MODE_DATARATE` prints the output data rate in Hz, every 1 second.
 - `DEBUG_MODE_STATUS` prints a line to serial whenever the status of a sensor changes.
 - `USB_SERIAL_MODE` sends everything over USB serial instead of radio serial.
 - `START_ON_POWERUP` allows shart to start running immediately without receiving bytes.
+- `ATTEMPT_RECONNECT` attempts to reinitialize lost chips
 
 If you add a debugging option, make sure to update the README.
 

@@ -64,6 +64,18 @@ void Shart::initSD() {
 
 }
 
+// Initializes serial bus with the specified baud rate
+void Shart::initSerial() {
+
+  #ifdef USB_SERIAL_MODE
+    USB_SERIAL_PORT.begin(USB_SERIAL_BAUD_RATE);
+    delay(200);
+  #else
+    initRadio();
+  #endif
+
+}
+
 void Shart::initRadio() {
 
   // Initialize radio serial port

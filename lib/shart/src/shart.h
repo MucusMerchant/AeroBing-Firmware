@@ -62,6 +62,7 @@
 #define BMP_CS  10 // CS
 #define ADXL_CS 39
 #define ICM_CS  0
+#define LSM_I2C_ADDR 106U
 
 // LED pins (not implemented)
 #define ONBOARD_LED_PIN 13
@@ -74,6 +75,7 @@
 #define BNO_CHIP_ID  0xA0
 #define BMP_CHIP_ID  0x50
 #define ADXL_CHIP_ID 0xE5
+#define LSM_CHIP_ID 0x6C
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Preprocessor directoves for EXPORT
@@ -146,11 +148,13 @@ class Shart {
     void updateStatusICM20948();
     void updateStatusBMP388();
     void updateStatusADXL375();
+    void updateStatusLSM6DSO32();
    
     // Sensor status getters
     Status getStatusICM20948();
     Status getStatusBMP388();
     Status getStatusADXL375();
+    Status getStatusLSM6DSO32();
 
     // Sensor objects from respective libraries
     UbloxGps<NavPvtPacket> gps  = UbloxGps<NavPvtPacket>(GPS_SERIAL_PORT);

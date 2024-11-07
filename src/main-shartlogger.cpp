@@ -12,7 +12,7 @@
 *
 *******************************************************************************/
 #include <Arduino.h>
-#include <TeensyThreads.h> // Multithreading library specific to the Teensyduino
+//#include <TeensyThreads.h> // Multithreading library specific to the Teensyduino
 #include <shart.h> // The lovely shart library
 
 // note: multithreading functionality is no longer implemented in this version
@@ -31,13 +31,12 @@ void reconnectLoop() {
 void setup() {
   
   // configure threads for reconnect, set slice to 150 micros
-  threads.setSliceMicros(150);
+  //threads.setSliceMicros(150);
 
   // create a thread for the reconnect loop, assign it low priority, in ticks (milliseconds)
   //threads.setTimeSlice(threads.addThread(reconnectLoop), 1);
   
   shart.init();
-  
 
 }
 

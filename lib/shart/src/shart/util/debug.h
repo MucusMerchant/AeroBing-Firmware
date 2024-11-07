@@ -7,7 +7,7 @@
 #define SHART_DEBUG_H
 
 // maybe try adding build flags -Isrc/util to platformio.ini, but this makes the library non-portable
-#include "../../../debug.config" // this looks ugly, but it lets me keep debug.conf in the main directory
+#include "../../../shart.config" // this looks ugly, but it lets me keep debug.conf in the main directory
 
 // General error logger, TODO: add all errors to code
 #ifdef DEBUG_MODE_ERROR

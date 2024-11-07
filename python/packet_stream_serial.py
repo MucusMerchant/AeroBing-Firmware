@@ -4,8 +4,8 @@ import serial
 import struct # this library is very useful, handles structs for us
 import time
 
-SERIAL_PORT = 'COM8' # will need to be changed for Mac or Linux
-SERIAL_BAUD = 230400 # need to change when switching from radio to usb serial mode
+SERIAL_PORT = 'COM5' # will need to be changed for Mac or Linux, on windows enter 'mode' in cmd to find active port name
+SERIAL_BAUD = 9600#230400 # need to change when switching from radio to usb serial mode
 SYNC_BYTE   = b'\xaa'
 TYPE_SENSOR = b'\x0b'
 TYPE_GPS    = b'\xca'
@@ -14,12 +14,25 @@ FILENAME = 'python/out.poop'
 
 # struct specifications following documentation at https://docs.python.org/3/library/struct.html
 PACKET_SPEC = {
-    TYPE_SENSOR : (56, '<I11f3h2B'), 
+    TYPE_SENSOR : (44, '<I6h5f3h2B'), 
     TYPE_GPS    : (52, '<I6i3Iif4B'),
 }
 
 #NUM_PACKETS_TO_READ = 1000 # set very high or infinity if u dont want a limit
 NUM_PACKETS_TO_READ = float('inf')
+
+# Raw IMU processing taken from adafruit library (i.e. from LSM datasheet)
+def convertRawIMU(ax, ay, az, gx, gy, gz):
+
+    c_ax = ax * 0.976 * 9.80665 / 1000.0
+    c_ay = ay * 0.976 * 9.80665 / 1000.0
+    c_az = az * 0.976 * 9.80665 / 1000.0
+
+    c_gx = gx * 70 * 0.017453293 / 1000.0
+    c_gy = gy * 70 * 0.017453293 / 1000.0
+    c_gz = gz * 70 * 0.017453293 / 1000.0
+
+    return c_ax, c_ay, c_az, c_gx, c_gy, c_gz
 
 class PacketStream:
     def __init__(self, port, baudrate):
@@ -36,6 +49,7 @@ class PacketStream:
                 self.device.open()
             except serial.SerialException as error:
                 if str(error).startswith("could not open port"):
+                    print(str(error))
                     time.sleep(1)
                 else:
                     raise error from None
@@ -109,7 +123,9 @@ if __name__ == "__main__":
             packets += 1
         #"""
         if packet_type == TYPE_SENSOR:
-            print("[SENSOR] " + str(packet))
+            #print("[SENSOR] " + str(packet))
+            #a,b,c,d,e,f = convertRawIMU(*packet[1:7])
+            print(convertRawIMU(*packet[1:7]))
         elif packet_type == TYPE_GPS:
             print("[GPS] " + str(packet))
         else:

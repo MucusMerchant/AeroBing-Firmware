@@ -83,7 +83,9 @@ static const uint8_t dmp3_image[] = {
 void TeensyICM20948::check_rc(int rc, const char * msg_context) 
 {
   if (rc < 0) {
+    #ifndef NO_PRINT
     Serial.println("ICM20948 ERROR!");
+    #endif
     while (1);
   }
 }
@@ -144,8 +146,10 @@ int TeensyICM20948::icm20948_sensor_setup(void)
   rc = inv_icm20948_get_whoami(&icm_device, &whoami);
 
   if (whoami != EXPECTED_WHOAMI) {
+    #ifndef NO_PRINT
     Serial.print("Bad WHOAMI value = 0x");
     Serial.println(whoami, HEX);
+    #endif
     return rc;
   }
 
@@ -155,7 +159,9 @@ int TeensyICM20948::icm20948_sensor_setup(void)
   // set default power mode
   rc = inv_icm20948_initialize(&icm_device, dmp3_image, sizeof(dmp3_image));
   if (rc != 0) {
+    #ifndef NO_PRINT
     Serial.println("Icm20948 Initialization failed.");
+    #endif
     return rc;
   }
 
@@ -165,7 +171,9 @@ int TeensyICM20948::icm20948_sensor_setup(void)
   inv_icm20948_register_aux_compass( &icm_device, INV_ICM20948_COMPASS_ID_AK09916, AK0991x_DEFAULT_I2C_ADDR);
   rc = inv_icm20948_initialize_auxiliary(&icm_device);
   if (rc == -1) {
+    #ifndef NO_PRINT
     Serial.println("Compass not detected...");
+    #endif
   }
 
   icm20948_apply_mounting_matrix();

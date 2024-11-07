@@ -31,16 +31,25 @@
 
 
 //
-void Shart::initLSM6DSO32(){
-  lsm.begin_I2C(106U, &LSM_I2C_BUS);
+void Shart::initLSM6DSO32() {
+
+  if (!lsm.begin_I2C(LSM_I2C_ADDR, &LSM_I2C_BUS)) {
+    UPDATE_STATUS(ICMStatus, UNINITIALIZED, SERIAL_PORT)
+    ERROR("LSM initialization failed!", SERIAL_PORT)
+    return;
+  }
+
   lsm.setAccelRange(LSM6DSO32_ACCEL_RANGE_32_G);
-  lsm.setAccelDataRate(LSM6DS_RATE_208_HZ);
   lsm.setGyroRange(LSM6DS_GYRO_RANGE_2000_DPS);
+  lsm.setAccelDataRate(LSM6DS_RATE_208_HZ);
   lsm.setGyroDataRate(LSM6DS_RATE_208_HZ);
-  
+
+  UPDATE_STATUS(LSMStatus, AVAILABLE, SERIAL_PORT)
 }
 
 void Shart::initICM20948() {
+
+  icm20948_instance = 0;
   
   if (!icm.init()) {
     UPDATE_STATUS(ICMStatus, UNINITIALIZED, SERIAL_PORT)
@@ -84,6 +93,7 @@ void Shart::initADXL375() {
     ERROR("ADXL initialization failed!", SERIAL_PORT)
     return;
   }
+
   UPDATE_STATUS(ADXLStatus, AVAILABLE, SERIAL_PORT)
 
 }
@@ -135,6 +145,17 @@ void Shart::updateStatusADXL375() {
 
 }
 
+void Shart::updateStatusLSM6DSO32() {
+  
+  if (lsm.chipID() != LSM_CHIP_ID) {
+    UPDATE_STATUS(LSMStatus, UNAVAILABLE, SERIAL_PORT);
+    ERROR("LSM not found!", SERIAL_PORT)
+    return;
+  }
+
+  UPDATE_STATUS(LSMStatus, AVAILABLE, SERIAL_PORT)
+}
+
 /*******************************************************************************
 * Collectors
 *
@@ -163,7 +184,7 @@ void Shart::collectDataADXL375() {
 void Shart::collectDataLSM6DSO32(){
   
   lsm.getRaw();
-  lsm.rawGyroX;
+
   sensor_packet.data.acc_x = lsm.rawAccX;
   sensor_packet.data.acc_y = lsm.rawAccY;
   sensor_packet.data.acc_z = lsm.rawAccZ;
@@ -176,24 +197,24 @@ void Shart::collectDataLSM6DSO32(){
 // collect data from the ICM w/ modified ZaneL's library
 void Shart::collectDataICM20948() {
 
-  float gyro_x, gyro_y, gyro_z;
-  float accel_x, accel_y, accel_z;
+  // float gyro_x, gyro_y, gyro_z;
+  // float accel_x, accel_y, accel_z;
   float mag_x, mag_y, mag_z;
 
   // we don't wait for mag here because it only comes at 70Hz (we can oversample)
-  while (!icm.accelDataIsReady()||!icm.gyroDataIsReady())//||!icm.magDataIsReady())
-    icm.task();
+  // while (!icm.accelDataIsReady()||!icm.gyroDataIsReady())//||!icm.magDataIsReady())
+  //   icm.task();
 
-  icm.readGyroData(&gyro_x, &gyro_y, &gyro_z);
-  icm.readAccelData(&accel_x, &accel_y, &accel_z);
+  // icm.readGyroData(&gyro_x, &gyro_y, &gyro_z);
+  // icm.readAccelData(&accel_x, &accel_y, &accel_z);
   icm.readMagData(&mag_x, &mag_y, &mag_z);
  
-  sensor_packet.data.acc_x = accel_x;
-  sensor_packet.data.acc_y = accel_y;
-  sensor_packet.data.acc_z = accel_z;
-  sensor_packet.data.gyr_x = gyro_x;
-  sensor_packet.data.gyr_y = gyro_y;
-  sensor_packet.data.gyr_z = gyro_z;
+  // sensor_packet.data.acc_x = accel_x;
+  // sensor_packet.data.acc_y = accel_y;
+  // sensor_packet.data.acc_z = accel_z;
+  // sensor_packet.data.gyr_x = gyro_x;
+  // sensor_packet.data.gyr_y = gyro_y;
+  // sensor_packet.data.gyr_z = gyro_z;
   sensor_packet.data.mag_x = mag_x;
   sensor_packet.data.mag_y = mag_y;
   sensor_packet.data.mag_z = mag_z;
@@ -217,3 +238,5 @@ Status Shart::getStatusICM20948() { return ICMStatus; }
 Status Shart::getStatusBMP388() { return BMPStatus; }
 
 Status Shart::getStatusADXL375() { return ADXLStatus; }
+
+Status Shart::getStatusLSM6DSO32() { return LSMStatus; }

@@ -210,9 +210,10 @@ public:
   Adafruit_Sensor *getTemperatureSensor(void);
   Adafruit_Sensor *getAccelerometerSensor(void);
   Adafruit_Sensor *getGyroSensor(void);
+  uint8_t chipID(void); // moved to public
 
 protected:
-  uint8_t chipID(void);
+  
   uint8_t status(void);
   virtual void _read(void);
   virtual bool _init(int32_t sensor_id);

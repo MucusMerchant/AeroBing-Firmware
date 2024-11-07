@@ -13,7 +13,7 @@ void Shart::init() {
   initPins();
   initSerial();
   initSD();
-
+  
   // initialize sensors
   initICM20948();
   initLSM6DSO32();
@@ -48,11 +48,11 @@ void Shart::collect() {
   collectTime();
 
   // Only collect data when sensors are marked as AVAILABLE
-  updateStatusICM20948(); if (getStatusICM20948() == AVAILABLE) collectDataICM20948();
-  updateStatusBMP388();   if (getStatusBMP388()   == AVAILABLE) collectDataBMP388();
-  updateStatusADXL375();  if (getStatusADXL375()  == AVAILABLE) collectDataADXL375();
-  collectDataGTU7();
-  collectDataICM20948();
+  updateStatusICM20948();  if (getStatusICM20948()  == AVAILABLE) collectDataICM20948();
+  updateStatusBMP388();    if (getStatusBMP388()    == AVAILABLE) collectDataBMP388();
+  updateStatusADXL375();   if (getStatusADXL375()   == AVAILABLE) collectDataADXL375();
+  updateStatusLSM6DSO32(); if (getStatusLSM6DSO32() == AVAILABLE) collectDataLSM6DSO32();
+  collectDataGTU7(); // GPS status doesn't matter here
   
   PRINT_DATARATE()
 
@@ -67,7 +67,7 @@ void Shart::send() {
   // Write to flash, send to radio
   if (getStatusSD() != PERMANENTLY_UNAVAILABLE) saveData();
   transmitData(); // check radio stage?
-  // set gps_ready flag to false no matter what
+  // set gps_ready flag to false no matter what to make sure we don't send the same data twice
   gps_ready = false;
 
 }
@@ -75,10 +75,14 @@ void Shart::send() {
 // If unavailable, try to reconnect to lost components
 void Shart::reconnect() {
 
+  #ifdef ATTEMPT_RECONNECT
   // reconnect storage and sensors
   if (getStatusBMP388()    == UNINITIALIZED) initBMP388();
   if (getStatusADXL375()   == UNINITIALIZED) initADXL375();
   if (getStatusICM20948()  == UNINITIALIZED) initICM20948();
+  if (getStatusLSM6DSO32() == UNINITIALIZED) initLSM6DSO32();
+
+  #endif
   
 }
 
@@ -123,23 +127,11 @@ void Shart::initPins() {
   pinMode(ONBOARD_LED_PIN, OUTPUT);
   digitalWrite(ONBOARD_LED_PIN, HIGH);
 
-  // set chip select pins to low
+  // set SPI chip select pins to low
   digitalWrite(ICM_CS, LOW);
   digitalWrite(BMP_CS, LOW);
   digitalWrite(ADXL_CS, LOW);
   delay(5);
-
-}
-
-// Initializes serial bus with the specified baud rate
-void Shart::initSerial() {
-
-  #ifdef USB_SERIAL_MODE
-    USB_SERIAL_PORT.begin(USB_SERIAL_BAUD_RATE);
-    delay(200);
-  #else
-    initRadio();
-  #endif
 
 }
 
