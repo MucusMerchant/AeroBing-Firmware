@@ -18,15 +18,15 @@
 // note: multithreading functionality is no longer implemented in this version
 
 // Global Shart singleton to be used throughout program execution
-Shart shart; 
+Shart *shart; 
 
-void reconnectLoop() {
+// void reconnectLoop() {
 
-  while (1) {
-    shart.threadedReconnect();
-  }
+//   while (1) {
+//     shart->threadedReconnect();
+//   }
 
-}
+// }
 
 void setup() {
   
@@ -35,23 +35,24 @@ void setup() {
 
   // create a thread for the reconnect loop, assign it low priority, in ticks (milliseconds)
   //threads.setTimeSlice(threads.addThread(reconnectLoop), 1);
-  
-  shart.init();
+  shart = new Shart();
+
+  shart->init();
 
 }
 
 void loop() {
 
   // Reinitialize disconnected chips when necessary
-  shart.reconnect();
+  shart->reconnect();
 
   // Collect data from sensors
-  shart.collect();
+  shart->collect();
 
   // Store and transmit collected data
-  shart.send();
+  shart->send();
 
   // maybe finish?
-  shart.maybeFinish();
+  shart->maybeFinish();
 
 }

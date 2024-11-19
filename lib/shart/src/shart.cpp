@@ -7,6 +7,10 @@ Shart::Shart() {
 // Initialize some stuff plus everything on shart
 void Shart::init() {
 
+  #ifndef START_ON_POWERUP
+  awaitStart();
+  #endif
+
   this->chipTimeOffset = micros();
 
   // initialize pins, storage, and transmission
@@ -21,22 +25,30 @@ void Shart::init() {
   initADXL375();
   initGTU7();
 
-  #ifndef START_ON_POWERUP
-  awaitStart();
-  #endif
-
 }
 
-// Wait until 5 0xBB bytes are received
+// Wait until we receive a start command packet
 void Shart::awaitStart() {
-  while (1) {
-    if (SERIAL_PORT.available() >= 5) {
-      for (int i = 0; i < 5; i++) {
-        if (SERIAL_PORT.read() != 0xBB) break;
-        if (i == 4) return;
-      }
-    }
+
+  command_p command_packet;
+  bool packet_received;
+
+  for (;;) {
+    #if MAIN_SERIAL_PORT == USB_SERIAL_PORT
+    packet_received = receivePacketType<usb_serial_class, command_p>(&command_packet, &MAIN_SERIAL_PORT);
+    #else
+    packet_received = receivePacketType<HardwareSerial, command_p>(&command_packet, &MAIN_SERIAL_PORT);
+    #endif
+    if (packet_received)
+    while (1)
+    //MAIN_SERIAL_PORT.printf("%d\n", *(int*) (&command_packet + 4));//command_packet.data.command);
+    //MAIN_SERIAL_PORT.printf("%d\n", *(int*) (&command_packet + 4));
+    //MAIN_SERIAL_PORT.printf("%d\n", *(int*) (&command_packet.data.command));
+    //MAIN_SERIAL_PORT.printf("%d\n", command_packet.data.command);
+    // what the fuck is going on here i dont know
+    if (packet_received && *(int*) (&command_packet.data.command) == START_COMMAND) return; 
   }
+
 }
 
 void Shart::collect() {
@@ -48,10 +60,10 @@ void Shart::collect() {
   collectTime();
 
   // Only collect data when sensors are marked as AVAILABLE
-  updateStatusICM20948();  if (getStatusICM20948()  == AVAILABLE) collectDataICM20948();
-  updateStatusBMP388();    if (getStatusBMP388()    == AVAILABLE) collectDataBMP388();
-  updateStatusADXL375();   if (getStatusADXL375()   == AVAILABLE) collectDataADXL375();
-  updateStatusLSM6DSO32(); if (getStatusLSM6DSO32() == AVAILABLE) collectDataLSM6DSO32();
+  updateStatusICM20948();  if (ICMStatus  == AVAILABLE) collectDataICM20948();
+  updateStatusBMP388();    if (BMPStatus  == AVAILABLE) collectDataBMP388();
+  updateStatusADXL375();   if (ADXLStatus == AVAILABLE) collectDataADXL375();
+  updateStatusLSM6DSO32(); if (LSMStatus  == AVAILABLE) collectDataLSM6DSO32();
   collectDataGTU7(); // GPS status doesn't matter here
   
   PRINT_DATARATE()
@@ -96,10 +108,16 @@ void Shart::threadedReconnect() {
 
 // stuff to do when Shart wraps up
 void Shart::maybeFinish() {
-  if (SERIAL_PORT.available() >= 5) {
-    for (int i = 0; i < 5; i++) {
-      if (SERIAL_PORT.read() != 0xAA) return;
-    }
+
+  command_p command_packet;
+  bool packet_received;
+
+  #if MAIN_SERIAL_PORT == USB_SERIAL_PORT
+  packet_received = receivePacketType<usb_serial_class, command_p>(&command_packet, &MAIN_SERIAL_PORT);
+  #else
+  packet_received = receivePacketType<HardwareSerial, command_p>(&command_packet, &MAIN_SERIAL_PORT);
+  #endif
+  if (packet_received && *(int*) (&command_packet.data.command) == STOP_COMMAND) {
     file.truncate();
     file.close();
     delay(1000);
@@ -112,10 +130,10 @@ void Shart::maybeFinish() {
 bool Shart::getSystemStatus() {
 
 	return (
-    getStatusBMP388()   == AVAILABLE &&
-		getStatusICM20948() == AVAILABLE &&
-		getStatusADXL375()  == AVAILABLE &&
-		getStatusSD()       == AVAILABLE);
+    BMPStatus  == AVAILABLE &&
+		ICMStatus  == AVAILABLE &&
+		ADXLStatus == AVAILABLE &&
+		SDStatus   == AVAILABLE);
     
 }
 
@@ -127,10 +145,10 @@ void Shart::initPins() {
   pinMode(ONBOARD_LED_PIN, OUTPUT);
   digitalWrite(ONBOARD_LED_PIN, HIGH);
 
-  // set SPI chip select pins to low
-  digitalWrite(ICM_CS, LOW);
-  digitalWrite(BMP_CS, LOW);
-  digitalWrite(ADXL_CS, LOW);
+  // set SPI chip select pins to high to prevent unexpected behavior
+  digitalWrite(ICM_CS, HIGH);
+  digitalWrite(BMP_CS, HIGH);
+  digitalWrite(ADXL_CS, HIGH);
   delay(5);
 
 }

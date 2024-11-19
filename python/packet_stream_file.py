@@ -17,9 +17,22 @@ TYPE_GPS    = b'\xca'
 # note that endian-ness matters
 # these structs are defined in comms.h in the Aerobing firmware folder
 PACKET_SPEC = {
-    TYPE_SENSOR : (56, '<I11f3h2B'), 
+    TYPE_SENSOR : (44, '<I6h5f3h2B'), 
     TYPE_GPS    : (52, '<I6i3Iif4B'),
 }
+
+# Raw IMU processing taken from adafruit library (i.e. from LSM datasheet)
+def convertRawIMU(ax, ay, az, gx, gy, gz):
+
+    c_ax = ax * 0.976 * 9.80665 / 1000.0
+    c_ay = ay * 0.976 * 9.80665 / 1000.0
+    c_az = az * 0.976 * 9.80665 / 1000.0
+
+    c_gx = gx * 70 * 0.017453293 / 1000.0
+    c_gy = gy * 70 * 0.017453293 / 1000.0
+    c_gz = gz * 70 * 0.017453293 / 1000.0
+
+    return c_ax, c_ay, c_az, c_gx, c_gy, c_gz
 
 class PacketStream:
     def __init__(self, filename):

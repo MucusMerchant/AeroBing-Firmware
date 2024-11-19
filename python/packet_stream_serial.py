@@ -4,11 +4,16 @@ import serial
 import struct # this library is very useful, handles structs for us
 import time
 
-SERIAL_PORT = 'COM5' # will need to be changed for Mac or Linux, on windows enter 'mode' in cmd to find active port name
-SERIAL_BAUD = 9600#230400 # need to change when switching from radio to usb serial mode
-SYNC_BYTE   = b'\xaa'
-TYPE_SENSOR = b'\x0b'
-TYPE_GPS    = b'\xca'
+SERIAL_PORT  = 'COM5' # will need to be changed for Mac or Linux, on windows enter 'mode' in cmd to find active port name
+SERIAL_BAUD  = 9600#230400 # need to change when switching from radio to usb serial mode
+SYNC_BYTE    = b'\xaa'
+TYPE_SENSOR  = b'\x0b'
+TYPE_GPS     = b'\xca'
+TYPE_COMMAND = b'\xa5'
+
+START_COMMAND = 0x6D656F77.to_bytes(4, 'little')
+STOP_COMMAND  = 0x6D696175.to_bytes(4, 'little')
+
 
 FILENAME = 'python/out.poop'
 
@@ -102,6 +107,15 @@ class PacketStream:
             self.error_state = 3
         return None, None
     
+    def start(self):
+        c_a, c_b = self.calculate_checksum(START_COMMAND)
+        print(SYNC_BYTE + TYPE_COMMAND + bytes([c_a, c_b]) + START_COMMAND)
+        self.device.write(SYNC_BYTE + TYPE_COMMAND + bytes([c_a, c_b]) + START_COMMAND)
+    
+    def stop(self):
+        c_a, c_b = self.calculate_checksum(STOP_COMMAND)
+        self.device.write(SYNC_BYTE + TYPE_COMMAND + bytes([c_a, c_b]) + STOP_COMMAND)
+
     def send(self, data):
         self.device.write(data)
 
@@ -115,6 +129,9 @@ if __name__ == "__main__":
     packets = 0
     fails = 0
     start = time.time()
+    for i in range(0,100):
+        radio_serial.start()
+    #radio_serial.stop()
     while packets < NUM_PACKETS_TO_READ:
         packet_type, packet = radio_serial.read_packet(PACKET_SPEC)
         if radio_serial.error_state == 1 or radio_serial.error_state == 2:
@@ -124,7 +141,6 @@ if __name__ == "__main__":
         #"""
         if packet_type == TYPE_SENSOR:
             #print("[SENSOR] " + str(packet))
-            #a,b,c,d,e,f = convertRawIMU(*packet[1:7])
             print(convertRawIMU(*packet[1:7]))
         elif packet_type == TYPE_GPS:
             print("[GPS] " + str(packet))

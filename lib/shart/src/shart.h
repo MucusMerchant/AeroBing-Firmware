@@ -56,12 +56,12 @@
 #define BMP_SPI_BUS  SPI1
 #define ADXL_SPI_BUS SPI
 #define ICM_SPI_BUS  SPI1
-#define LSM_I2C_BUS Wire
+#define LSM_I2C_BUS  Wire
 
 // SPI chip select pins
-#define BMP_CS  10 // CS
-#define ADXL_CS 39
-#define ICM_CS  0
+#define BMP_CS  0 // CS
+#define ADXL_CS 10
+#define ICM_CS  38
 #define LSM_I2C_ADDR 106U
 
 // LED pins (not implemented)
@@ -75,7 +75,7 @@
 #define BNO_CHIP_ID  0xA0
 #define BMP_CHIP_ID  0x50
 #define ADXL_CHIP_ID 0xE5
-#define LSM_CHIP_ID 0x6C
+#define LSM_CHIP_ID  0x6C
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Preprocessor directoves for EXPORT
@@ -85,7 +85,7 @@
 #include "SdFat.h"
 
 // Definitions for radio
-#define RADIO_SERIAL_PORT Serial7 // RX6 and TX6 on the teensy, see pinout for pin numbers
+#define RADIO_SERIAL_PORT Serial8 // RX6 and TX6 on the teensy, see pinout for pin numbers
 #define RADIO_BAUD_RATE   230400 // note that this has an impact on transmission speed
 #define RADIO_TIMEOUT_MS  1000 // Radio read timeout in milliseconds
 
@@ -108,9 +108,9 @@
 // by default, but if we specify USB_SERIAL_MODE in debug.config, we will use USB serial instead.
 // This means we will usually not use both radio and usb serial
 #ifdef USB_SERIAL_MODE
-  #define SERIAL_PORT USB_SERIAL_PORT
+  #define MAIN_SERIAL_PORT USB_SERIAL_PORT
 #else
-  #define SERIAL_PORT RADIO_SERIAL_PORT
+  #define MAIN_SERIAL_PORT RADIO_SERIAL_PORT
 #endif
 
 class Shart {
@@ -149,12 +149,6 @@ class Shart {
     void updateStatusBMP388();
     void updateStatusADXL375();
     void updateStatusLSM6DSO32();
-   
-    // Sensor status getters
-    Status getStatusICM20948();
-    Status getStatusBMP388();
-    Status getStatusADXL375();
-    Status getStatusLSM6DSO32();
 
     // Sensor objects from respective libraries
     UbloxGps<NavPvtPacket> gps  = UbloxGps<NavPvtPacket>(GPS_SERIAL_PORT);

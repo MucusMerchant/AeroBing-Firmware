@@ -1,4 +1,4 @@
-// this file contains all of the necessary typedefs and packets for ALL operations of the flight computer. this includes both outgoing and incoming packets
+// this file contains all of the necessary typedefs and packets for ALL flight computer communication. this includes both outgoing and incoming packets
 #ifndef COMMS_H
 #define COMMS_H
 
@@ -10,13 +10,19 @@
 // first byte is the type id, second is the payload length REMEMBER TO UPDATE THESE
 #define TYPE_SENSOR      0x0B
 #define TYPE_GPS         0xCA
+#define TYPE_COMMAND     0xA5
 #define TYPE_POOP        0x33
+
+// commands for command_p
+#define START_COMMAND    0x6D656F77 // DANGER, DO NOT CONVERT THIS TO ASCII!!!
+#define STOP_COMMAND     0x6D696175 // or this one!!!
 
 // nested ternaries to map packet types to their respective sizes: important for several functions
 #define TYPE_SIZE(type) ( \
-    type == TYPE_SENSOR ? sizeof(sensor_p) : \
-    type == TYPE_GPS    ? sizeof(gps_p) : \
-    type == TYPE_POOP   ? 0  : \
+    type == TYPE_SENSOR  ? sizeof(sensor_p)  : \
+    type == TYPE_GPS     ? sizeof(gps_p)     : \
+    type == TYPE_COMMAND ? sizeof(command_p) : \
+    type == TYPE_POOP    ? 0                 : \
     0 )
 
 // macro to update a packet object with the checksum of its payload, braces to avoid redeclaration of temporary variables
@@ -34,12 +40,13 @@ typedef unsigned char packet_t;
 
 // Header common to all packet types
 // only one sync byte (0xAA), then a type, defined by the packet_t enum, then two checksum bytes
+// note here that packet types are hard baked into the packets themselves, this makes a few things simpler later on
 struct packet_base {
 
     const unsigned char sync = SYNC;
-    const unsigned char type;
-    unsigned char c_a; // single-byte addition is actually slower bc of sign-extending, msybe should cast before calculating, may be insignificant though
-    unsigned char c_b;
+    const packet_t      type;
+    unsigned char       c_a; // single-byte addition is actually slower bc of sign-extending, msybe should cast before calculating, may be insignificant though
+    unsigned char       c_b;
 
     packet_base(packet_t t) : type(t) {}
 
@@ -99,6 +106,15 @@ struct gps_p : public packet_base {
     gps_p() : packet_base(TYPE_GPS), data{} {}
 
 };
+
+struct command_p : public packet_base {
+    
+    struct {
+        int32_t command;
+    } data;
+
+    command_p() : packet_base(TYPE_COMMAND), data{} {}
+};
 // struct gps_message {
 // 	uint64_t time_usec{0};
 // 	int32_t lat;		///< Latitude in 1E-7 degrees
@@ -129,47 +145,35 @@ bool initStorage() {
 }
 */
 // this assumes the packet passed in is initialized with correct type, i.e. correct size
-void receivePacket(packet_base &p, packet_t type, HardwareSerial &serial);
-
-    // readPacket()? from storage maybe
-
-void sendPacket(packet_base &p, packet_t type, HardwareSerial &serial);
-
-// rewrite this function for whatever storage library we using
-void writePacket(packet_base &p, packet_t type);
-
-// make flush/sync accessible, only SD
-void syncSD();
-
-
-
-
-/*
-class poop {
-    public:
-        sensor_p packet;
+template<typename SerialType, typename PacketType>
+bool receivePacketType(PacketType *p, SerialType *serial) {
     
-};
+    int packet_size = TYPE_SIZE(p->type);
+    // read header, potentially problematic
+    if (serial->available() < packet_size ||
+        serial->read() != SYNC ||
+        serial->read() != p->type) return false;
+    p->c_a = serial->read();
+    p->c_b = serial->read();
 
-int main() {
-    poop poop;
-    
-    poop.packet.temp = 69;
-    sendPacket(poop.packet, TYPE_SENSOR);
-    std::cout << poop.packet.c_a << " " << poop.packet.c_b << std::endl;
-    return 0;
+    // buffer for the packet's data content (packet minus header)
+    unsigned char *buffer = (unsigned char *) malloc(packet_size - HEADER_LENGTH);
+    unsigned char sum[2];
+
+    for (int i = 0; i < packet_size - HEADER_LENGTH; i++) {
+        unsigned char b = serial->read();
+        buffer[i] = b;
+        sum[0] += b;
+        sum[1] += sum[0];
+    }
+
+    // moderate risk of buffer overflow if user dumb, puts wrong type
+    memcpy(p + HEADER_LENGTH, buffer, packet_size - HEADER_LENGTH);
+    free(buffer);
+
+    if (sum[0] == p->c_a && sum[1] == p->c_b) return true;
+    return false;
+
 }
-*/
-
-
-// how do we fit threaded GPS messages into shart?
-// we need a thread-safe buffer that holds packets, sends in bursts
-//      Best way I've thought of so far: have GPS running constantly on a different thread
-//      When it finds data, GPS thread memcpy()s packet somewhere accessible to the main thread, provides a flag to indicate data is available, then continues
-//      This functionality could literally just be built into the GPS library
-//      The only possible thread conflict is at the copied GPS array. maybe lock it just in case
-//      
-//      
-// general re-design option: could get rid of the class separation, instead just have functions implemented in different .cpp files.
 
 #endif
