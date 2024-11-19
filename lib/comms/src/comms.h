@@ -2,28 +2,18 @@
 #ifndef COMMS_H
 #define COMMS_H
 
-#include <HardwareSerial.h>
-
 #define HEADER_LENGTH    4
-#define NUM_PACKET_TYPES 3
-#define SYNC             0xAA // idk chat gpt said alternating bits are good
-// first byte is the type id, second is the payload length REMEMBER TO UPDATE THESE
+#define SYNC             0xAA
+
+// packet type bytes
 #define TYPE_SENSOR      0x0B
 #define TYPE_GPS         0xCA
 #define TYPE_COMMAND     0xA5
 #define TYPE_POOP        0x33
 
 // commands for command_p
-#define START_COMMAND    0x6D656F77 // DANGER, DO NOT CONVERT THIS TO ASCII!!!
+#define START_COMMAND    0x6D656F77 // DANGER, DO NOT CONVERT THIS TO ASCII!!! YOU WILL REGRET
 #define STOP_COMMAND     0x6D696175 // or this one!!!
-
-// nested ternaries to map packet types to their respective sizes: important for several functions
-#define TYPE_SIZE(type) ( \
-    type == TYPE_SENSOR  ? sizeof(sensor_p)  : \
-    type == TYPE_GPS     ? sizeof(gps_p)     : \
-    type == TYPE_COMMAND ? sizeof(command_p) : \
-    type == TYPE_POOP    ? 0                 : \
-    0 )
 
 // macro to update a packet object with the checksum of its payload, braces to avoid redeclaration of temporary variables
 #define CHECKSUM(p) \
@@ -115,6 +105,50 @@ struct command_p : public packet_base {
 
     command_p() : packet_base(TYPE_COMMAND), data{} {}
 };
+
+// this assumes the packet passed in is initialized with correct type, i.e. correct size
+template<typename PacketType, typename SerialType>
+bool receivePacketType(PacketType *p, SerialType *serial, bool acknowledge) {
+    
+    int packet_size = sizeof(PacketType);
+
+    // read header, potentially problematic if unfortunate payload choice, potentially endless blocking
+    // gotta make sure last byte of data isnt sync byte
+    if (serial->available() < packet_size ||
+        serial->read() != SYNC ||
+        serial->read() != p->type) return false;
+
+    p->c_a = serial->read();
+    p->c_b = serial->read();
+
+    // buffer for the packet's data content (packet minus header)
+    unsigned char *buffer = static_cast<unsigned char*>(malloc(packet_size - HEADER_LENGTH));
+    unsigned char sum[2] = {0};
+
+    for (int i = 0; i < packet_size - HEADER_LENGTH; i++) {
+
+        unsigned char b = serial->read();
+        buffer[i] = b;
+        sum[0] += b;
+        sum[1] += sum[0];
+
+    }
+
+    if (sum[0] == p->c_a && sum[1] == p->c_b) {
+
+        memcpy(&(p->data), buffer, packet_size - HEADER_LENGTH);
+        // send ack signal back to sender
+        if (acknowledge) serial->write(reinterpret_cast<unsigned char *>(p), packet_size);
+        free(buffer);
+        return true;
+
+    } 
+
+    free(buffer);
+    return false;
+
+}
+
 // struct gps_message {
 // 	uint64_t time_usec{0};
 // 	int32_t lat;		///< Latitude in 1E-7 degrees
@@ -132,48 +166,6 @@ struct command_p : public packet_base {
 // 	uint8_t nsats;		///< number of satellites used
 // 	float pdop;		///< position dilution of precision
 // };
-/*
-// initialize radio serial and storage device
-void initRadio(HardwareSerial &serial, int baud_rate, unsigned char *aux_buffer = nullptr, int aux_buffer_length = 0) {
-    serial.begin(baud_rate);
-    serial.addMemoryForWrite(aux_buffer, aux_buffer_length);
-    while (!serial) {};
-}*/
-/*
-bool initStorage() {
-    return true;
-}
-*/
-// this assumes the packet passed in is initialized with correct type, i.e. correct size
-template<typename SerialType, typename PacketType>
-bool receivePacketType(PacketType *p, SerialType *serial) {
-    
-    int packet_size = TYPE_SIZE(p->type);
-    // read header, potentially problematic
-    if (serial->available() < packet_size ||
-        serial->read() != SYNC ||
-        serial->read() != p->type) return false;
-    p->c_a = serial->read();
-    p->c_b = serial->read();
 
-    // buffer for the packet's data content (packet minus header)
-    unsigned char *buffer = (unsigned char *) malloc(packet_size - HEADER_LENGTH);
-    unsigned char sum[2];
-
-    for (int i = 0; i < packet_size - HEADER_LENGTH; i++) {
-        unsigned char b = serial->read();
-        buffer[i] = b;
-        sum[0] += b;
-        sum[1] += sum[0];
-    }
-
-    // moderate risk of buffer overflow if user dumb, puts wrong type
-    memcpy(p + HEADER_LENGTH, buffer, packet_size - HEADER_LENGTH);
-    free(buffer);
-
-    if (sum[0] == p->c_a && sum[1] == p->c_b) return true;
-    return false;
-
-}
 
 #endif

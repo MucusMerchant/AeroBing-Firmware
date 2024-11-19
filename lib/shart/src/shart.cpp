@@ -30,31 +30,23 @@ void Shart::init() {
 // Wait until we receive a start command packet
 void Shart::awaitStart() {
 
-  command_p command_packet;
   bool packet_received;
 
   for (;;) {
+
     #if MAIN_SERIAL_PORT == USB_SERIAL_PORT
-    packet_received = receivePacketType<usb_serial_class, command_p>(&command_packet, &MAIN_SERIAL_PORT);
+    packet_received = receivePacketType<command_p, usb_serial_class>(&command_packet, &MAIN_SERIAL_PORT, 1);
     #else
-    packet_received = receivePacketType<HardwareSerial, command_p>(&command_packet, &MAIN_SERIAL_PORT);
+    packet_received = receivePacketType<command_p, HardwareSerial>(&command_packet, &MAIN_SERIAL_PORT, 1);
     #endif
-    if (packet_received)
-    while (1)
-    //MAIN_SERIAL_PORT.printf("%d\n", *(int*) (&command_packet + 4));//command_packet.data.command);
-    //MAIN_SERIAL_PORT.printf("%d\n", *(int*) (&command_packet + 4));
-    //MAIN_SERIAL_PORT.printf("%d\n", *(int*) (&command_packet.data.command));
-    //MAIN_SERIAL_PORT.printf("%d\n", command_packet.data.command);
-    // what the fuck is going on here i dont know
-    if (packet_received && *(int*) (&command_packet.data.command) == START_COMMAND) return; 
+    
+    if (packet_received && command_packet.data.command == START_COMMAND) return; 
+
   }
 
 }
 
 void Shart::collect() {
-
-  // Reset all data values between each read?
-  //memset(data.f, 0, NUM_DATA_POINTS * sizeof(float));
 
   // Get time since program start in us
   collectTime();
@@ -109,17 +101,19 @@ void Shart::threadedReconnect() {
 // stuff to do when Shart wraps up
 void Shart::maybeFinish() {
 
-  command_p command_packet;
   bool packet_received;
 
   #if MAIN_SERIAL_PORT == USB_SERIAL_PORT
-  packet_received = receivePacketType<usb_serial_class, command_p>(&command_packet, &MAIN_SERIAL_PORT);
+  packet_received = receivePacketType<command_p, usb_serial_class>(&command_packet, &MAIN_SERIAL_PORT, 1);
   #else
-  packet_received = receivePacketType<HardwareSerial, command_p>(&command_packet, &MAIN_SERIAL_PORT);
+  packet_received = receivePacketType<command_p, HardwareSerial>(&command_packet, &MAIN_SERIAL_PORT, 1);
   #endif
-  if (packet_received && *(int*) (&command_packet.data.command) == STOP_COMMAND) {
+
+  if (packet_received && command_packet.data.command == STOP_COMMAND) {
     file.truncate();
     file.close();
+    pinMode(ONBOARD_LED_PIN, OUTPUT);
+    digitalWrite(ONBOARD_LED_PIN, LOW); // turn off Teensy light
     delay(1000);
     exit(0);
   }
@@ -143,12 +137,16 @@ void Shart::initPins() {
   // Enable onboard Teensy 4.1 LED and turn it on!
   // If the Teensy is on, this LED will be on.
   pinMode(ONBOARD_LED_PIN, OUTPUT);
+  // pinMode(ICM_CS, OUTPUT);
+  // pinMode(BMP_CS, OUTPUT);
+  // pinMode(ADXL_CS, OUTPUT);
   digitalWrite(ONBOARD_LED_PIN, HIGH);
 
   // set SPI chip select pins to high to prevent unexpected behavior
-  digitalWrite(ICM_CS, HIGH);
-  digitalWrite(BMP_CS, HIGH);
-  digitalWrite(ADXL_CS, HIGH);
+  // commented out because we have pull-up resistors
+  // digitalWrite(ICM_CS, HIGH);
+  // digitalWrite(BMP_CS, HIGH);
+  // digitalWrite(ADXL_CS, HIGH);
   delay(5);
 
 }

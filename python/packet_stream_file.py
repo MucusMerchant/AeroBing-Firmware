@@ -9,9 +9,10 @@ import os
 os.chdir(os.getcwd()+"/python")
 
 FILE_NAME = "out.poop"
-SYNC_BYTE   = b'\xaa'
-TYPE_SENSOR = b'\x0b'
-TYPE_GPS    = b'\xca'
+SYNC_BYTE    : bytes = b'\xaa'
+TYPE_SENSOR  : bytes = b'\x0b'
+TYPE_GPS     : bytes = b'\xca'
+TYPE_COMMAND : bytes = b'\xa5'
 
 # struct specifications following documentation at https://docs.python.org/3/library/struct.html
 # note that endian-ness matters
@@ -22,7 +23,7 @@ PACKET_SPEC = {
 }
 
 # Raw IMU processing taken from adafruit library (i.e. from LSM datasheet)
-def convertRawIMU(ax, ay, az, gx, gy, gz):
+def convertRawIMU(ax: int, ay: int, az: int, gx: int, gy: int, gz: int) -> tuple[float]:
 
     c_ax = ax * 0.976 * 9.80665 / 1000.0
     c_ay = ay * 0.976 * 9.80665 / 1000.0
@@ -44,23 +45,22 @@ class PacketStream:
         self.file = open(self.filename, mode='rb')
 
     # Function to calculate the checksum
-    def calculate_checksum(self, data):
+    def calculate_checksum(self, data: bytes) -> bytes:
         checksum_a = 0
         checksum_b = 0
         for byte in data:
             checksum_a += byte
             checksum_b += checksum_a
-        return checksum_a & 0xFF, checksum_b & 0xFF
+        return bytes([checksum_a & 0xFF, checksum_b & 0xFF])
 
-    # Function to process packets, reading bytes from file one at a time
-    def read_packet(self, packet_types):
-        if (sync_byte := self.file.read(1)):
-            if sync_byte == SYNC_BYTE:
+    # Function to read data from serial and process packets
+    def read_packet(self) -> tuple[int, tuple]:
+        if (self.file.read(1) == SYNC_BYTE):
                 # Found sync byte, read packet type
                 packet_type_byte = self.file.read(1)
-                if packet_type_byte in packet_types:
+                if packet_type_byte in PACKET_SPEC:
                     received_checksum_a, received_checksum_b = struct.unpack('<BB', self.file.read(2))
-                    packet_info = packet_types[packet_type_byte]
+                    packet_info = PACKET_SPEC[packet_type_byte]
                     packet_size = packet_info[0]
                     packet_data = self.file.read(packet_size)
                         
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     packets = 0
     # here you can filter by error state. right now, we stop only when we reach eof
     while packet_reader.error_state != 3:
-        packet_type, packet = packet_reader.read_packet(PACKET_SPEC)
+        packet_type, packet = packet_reader.read_packet()
         if packet_type == TYPE_SENSOR:
             print("[SENSOR] " + str(packet))
         elif packet_type == TYPE_GPS:

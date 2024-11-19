@@ -195,8 +195,9 @@ class Shart {
     bool gps_ready = false;
 
     // Persistent packet objects used to store and transmit data
-    sensor_p sensor_packet;
-    gps_p    gps_packet;
+    sensor_p  sensor_packet;
+    gps_p     gps_packet;
+    command_p command_packet;
 
     // The current and previous times as recorded by a 'micros()' call
     uint32_t current_time = 0;

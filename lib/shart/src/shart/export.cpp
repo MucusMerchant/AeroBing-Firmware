@@ -108,8 +108,8 @@ void Shart::saveData() {
     }
   }
 
-  rb.write((unsigned char *) &sensor_packet, sizeof(sensor_p));
-  if (gps_ready) rb.write((unsigned char *) &gps_packet, sizeof(gps_p));
+  rb.write(reinterpret_cast<unsigned char *>(&sensor_packet), sizeof(sensor_p));
+  if (gps_ready) rb.write(reinterpret_cast<unsigned char *>(&gps_packet), sizeof(gps_p));
   
   if (rb.getWriteError()) {
     // Error caused by too few free bytes in RingBuf.
@@ -124,8 +124,8 @@ void Shart::saveData() {
 // TODO: packet should include a byte indicating the status of all sensors
 void Shart::transmitData() {
 
-  MAIN_SERIAL_PORT.write((unsigned char *) &sensor_packet, sizeof(sensor_p));
-  if (gps_ready) MAIN_SERIAL_PORT.write((unsigned char *) &gps_packet, sizeof(gps_p));
+  MAIN_SERIAL_PORT.write(reinterpret_cast<unsigned char *>(&sensor_packet), sizeof(sensor_p));
+  if (gps_ready) MAIN_SERIAL_PORT.write(reinterpret_cast<unsigned char *>(&gps_packet), sizeof(gps_p));
 
 }
 
