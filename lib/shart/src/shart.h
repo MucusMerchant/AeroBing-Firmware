@@ -73,9 +73,16 @@
 
 // Chip IDs for checking connectivity
 #define BNO_CHIP_ID  0xA0
-#define BMP_CHIP_ID  0x50
+#define BMP_CHIP_ID  0x60
 #define ADXL_CHIP_ID 0xE5
 #define LSM_CHIP_ID  0x6C
+
+// Define bit offsets for status bitmap
+#define ICM_STATUS_OFFSET  0
+#define BMP_STATUS_OFFSET  1
+#define ADXL_STATUS_OFFSET 2
+#define LSM_STATUS_OFFSET  3
+#define SD_STATUS_OFFSET   4
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Preprocessor directoves for EXPORT
@@ -106,7 +113,6 @@
 
 // SERIAL_PORT is the port we use for all external serial communication. It is the radio serial port
 // by default, but if we specify USB_SERIAL_MODE in debug.config, we will use USB serial instead.
-// This means we will usually not use both radio and usb serial
 #ifdef USB_SERIAL_MODE
   #define MAIN_SERIAL_PORT USB_SERIAL_PORT
 #else
@@ -127,15 +133,14 @@ class Shart {
   private:
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // PRIVATE SENSOR MEMBERS
-    // initializers, some have status passed by reference so that it can be updated if necessary
+    // initializers
     void initICM20948();
     void initLSM6DSO32();
     void initBMP388();
     void initADXL375();
     void initGTU7();
 
-    // collectors, all take a pointer to an array of floats (data in shart.h) and fill hard-coded array indices
-    // can hard code indices in here for speed or use start_index for convenience
+    // individual sensor collectors
     void collectDataICM20948();
     void collectDataLSM6DSO32();
     void collectDataBMP388();
@@ -149,6 +154,7 @@ class Shart {
     void updateStatusBMP388();
     void updateStatusADXL375();
     void updateStatusLSM6DSO32();
+    void setStatusByte();
 
     // Sensor objects from respective libraries
     UbloxGps<NavPvtPacket> gps  = UbloxGps<NavPvtPacket>(GPS_SERIAL_PORT);
@@ -176,7 +182,6 @@ class Shart {
     void transmitData();
 
     // status getters
-    RadioStage getStatusRadio();
     Status getStatusSD();
 
     SdFs sd;
@@ -187,7 +192,6 @@ class Shart {
     uint16_t sd_num_connection_attempts = 0;
     uint8_t bigassbuffer[2048]; // buffer for radio TX
 
-    RadioStage radioStage = UNCONNECTED; // Radio stage
     Status SDStatus = UNINITIALIZED;
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

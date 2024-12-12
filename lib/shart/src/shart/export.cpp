@@ -83,7 +83,6 @@ void Shart::initRadio() {
   RADIO_SERIAL_PORT.addMemoryForWrite(&bigassbuffer, sizeof(bigassbuffer));
   RADIO_SERIAL_PORT.setTimeout(RADIO_TIMEOUT_MS);
 
-  radioStage = CONNECTED;
   return;
 
 }
@@ -126,13 +125,6 @@ void Shart::transmitData() {
 
   MAIN_SERIAL_PORT.write(reinterpret_cast<unsigned char *>(&sensor_packet), sizeof(sensor_p));
   if (gps_ready) MAIN_SERIAL_PORT.write(reinterpret_cast<unsigned char *>(&gps_packet), sizeof(gps_p));
-
-}
-
- // status getters
-RadioStage Shart::getStatusRadio() {
-
-  return radioStage;
 
 }
 

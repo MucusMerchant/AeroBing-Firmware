@@ -114,6 +114,7 @@ bool receivePacketType(PacketType *p, SerialType *serial, bool acknowledge) {
 
     // read header, potentially problematic if unfortunate payload choice, potentially endless blocking
     // gotta make sure last byte of data isnt sync byte
+    // maybe solve this by keeping track of if the last byte was 0xAA, if yes, check for Sync byte AND type byte this time
     if (serial->available() < packet_size ||
         serial->read() != SYNC ||
         serial->read() != p->type) return false;

@@ -203,8 +203,8 @@ void Shart::collectDataICM20948() {
   float mag_x, mag_y, mag_z;
 
   // we don't wait for mag here because it only comes at 70Hz (we can oversample)
-  // while (!icm.accelDataIsReady()||!icm.gyroDataIsReady())//||!icm.magDataIsReady())
-  //   icm.task();
+  //while (!icm.accelDataIsReady()||!icm.gyroDataIsReady())//||!icm.magDataIsReady())
+  icm.task();
 
   // icm.readGyroData(&gyro_x, &gyro_y, &gyro_z);
   // icm.readAccelData(&accel_x, &accel_y, &accel_z);

@@ -1,13 +1,6 @@
 #ifndef STATUS_ENUMS_H
 #define STATUS_ENUMS_H
 
-typedef enum RadioStage {
-  UNCONNECTED = 0,
-  CONNECTED = 1,
-  DISCONNECTED = 4,
-  RECONNECTED = 8,
-} RadioStage;
-
 // Type definition for Status
 typedef enum Status {
   UNINITIALIZED = 0,

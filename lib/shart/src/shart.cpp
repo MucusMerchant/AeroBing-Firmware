@@ -57,6 +57,8 @@ void Shart::collect() {
   updateStatusADXL375();   if (ADXLStatus == AVAILABLE) collectDataADXL375();
   updateStatusLSM6DSO32(); if (LSMStatus  == AVAILABLE) collectDataLSM6DSO32();
   collectDataGTU7(); // GPS status doesn't matter here
+
+  setStatusByte();
   
   PRINT_DATARATE()
 
@@ -70,7 +72,7 @@ void Shart::send() {
 
   // Write to flash, send to radio
   if (getStatusSD() != PERMANENTLY_UNAVAILABLE) saveData();
-  transmitData(); // check radio stage?
+  transmitData(); // check radio status?
   // set gps_ready flag to false no matter what to make sure we don't send the same data twice
   gps_ready = false;
 
@@ -129,6 +131,16 @@ bool Shart::getSystemStatus() {
 		ADXLStatus == AVAILABLE &&
 		SDStatus   == AVAILABLE);
     
+}
+
+// fill the status byte in the sensor packet. each bit set to 1 if component good, otherwise 0
+void Shart::setStatusByte() {
+  sensor_packet.data.status = 0;
+  sensor_packet.data.status |= (ICMStatus == AVAILABLE)  << ICM_STATUS_OFFSET;
+  sensor_packet.data.status |= (BMPStatus == AVAILABLE)  << BMP_STATUS_OFFSET;
+  sensor_packet.data.status |= (ADXLStatus == AVAILABLE) << ADXL_STATUS_OFFSET;
+  sensor_packet.data.status |= (LSMStatus == AVAILABLE)  << LSM_STATUS_OFFSET;
+  sensor_packet.data.status |= (SDStatus == AVAILABLE)   << SD_STATUS_OFFSET;
 }
 
 // Initializes Teensy 4.1 pins

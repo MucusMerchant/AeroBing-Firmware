@@ -21,8 +21,9 @@ FILENAME = 'python/out.poop'
 # struct specifications following documentation at https://docs.python.org/3/library/struct.html
 # defined in shart comms.h
 PACKET_SPEC = {
-    TYPE_SENSOR : (44, '<I6h5f3h2B'), 
-    TYPE_GPS    : (52, '<I6i3Iif4B'),
+    TYPE_SENSOR  : (44, '<I6h5f3h2B'), 
+    TYPE_GPS     : (52, '<I6i3Iif4B'),
+    TYPE_COMMAND : (4,  '<i'),
 }
 
 #NUM_PACKETS_TO_READ = 1000 # set very high or infinity if u dont want a limit
@@ -132,6 +133,15 @@ if __name__ == "__main__":
     start = time.time()
 
     radio_serial.start()
+    # Wait for acknowledgement
+    print("Awaiting acknowledgement of start command")
+    while True:
+        packet_type, packet = radio_serial.read_packet()
+        if (radio_serial.error_state == 0):
+            break
+    if (packet_type != TYPE_COMMAND or packet[0] != START_COMMAND):
+        print("Acknowledgement not recognized, exiting")
+        exit()
     
     while packets < NUM_PACKETS_TO_READ:
         packet_type, packet = radio_serial.read_packet()
@@ -141,8 +151,8 @@ if __name__ == "__main__":
             packets += 1
         #"""
         if packet_type == TYPE_SENSOR:
-            #print("[SENSOR] " + str(packet))
-            print(convertRawIMU(*packet[1:7]))
+            print("[SENSOR] " + str(packet))
+            #print(convertRawIMU(*packet[1:7]))
         elif packet_type == TYPE_GPS:
             print("[GPS] " + str(packet))
         else:
