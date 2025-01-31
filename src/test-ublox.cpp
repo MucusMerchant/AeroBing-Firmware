@@ -18,11 +18,11 @@ char datetime[DATETIME_LENGTH];
 void setup()
 {
     Serial.begin(COMPUTER_BAUDRATE);
-    //UbxGpsConfig<HardwareSerial, usb_serial_class> *ubxGpsConfig = new UbxGpsConfig<HardwareSerial, usb_serial_class>(Serial2, Serial);
-    //ubxGpsConfig->setBaudrate(GPS_BAUDRATE);
-    //ubxGpsConfig->setMessage(UbxGpsConfigMessage::NavPvt);
-    //ubxGpsConfig->setRate(100);
-    //ubxGpsConfig->configure();
+    UbxGpsConfig<HardwareSerial, usb_serial_class> *ubxGpsConfig = new UbxGpsConfig<HardwareSerial, usb_serial_class>(Serial2, Serial);
+    ubxGpsConfig->setBaudrate(GPS_BAUDRATE);
+    ubxGpsConfig->setMessage(UbxGpsConfigMessage::NavPvt);
+    ubxGpsConfig->setRate(100);
+    ubxGpsConfig->configure();
     //delete ubxGpsConfig;
 
     gps.begin(GPS_BAUDRATE);
@@ -68,7 +68,7 @@ void loop()
 #include <Arduino.h>
 
 #define COMPUTER_BAUDRATE 9600
-#define GPS_BAUDRATE 115200
+#define GPS_BAUDRATE 9600
 
 void setup()
 {

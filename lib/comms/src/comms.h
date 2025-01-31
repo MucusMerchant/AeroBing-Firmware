@@ -107,6 +107,7 @@ struct command_p : public packet_base {
 };
 
 // this assumes the packet passed in is initialized with correct type, i.e. correct size
+// templated to use any packet type an either usb or harware serial
 template<typename PacketType, typename SerialType>
 bool receivePacketType(PacketType *p, SerialType *serial, bool acknowledge) {
     

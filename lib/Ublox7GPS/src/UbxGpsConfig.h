@@ -21,7 +21,7 @@ const long gpsPossibleBaudrates[] = {
     // 921600,
     // 460800,
     // 230400,
-    115200,
+    //115200,
     // 57600,
     // 38400,
     // 19200,
@@ -365,10 +365,12 @@ public:
         // Disable unnecessary channels like SBAS or QZSS.
         logSerial.println("Disabling unnecessary channels...");
         disableUnnecessaryChannels();
+        delay(100);
 
         // Enable NAV-PVT messages.
         logSerial.println("Enabling NAV-PVT messages...");
         enableNavPvt();
+        delay(100);
 
         logSerial.println("Auto-configuration is complete!");
 

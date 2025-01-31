@@ -47,6 +47,7 @@
 #include <Teensy-ICM-20948.h>
 #include <Adafruit_LSM6DSO32.h>
 #include <UbloxGPS.h>
+#include <UbxGpsConfig.h>
 
 // GPS pins, not that these are RX and TX on the microcontroller, NOT the GTU7 (i.e. GTU_RX_PIN goes to the TX pin on the GTU)
 #define GPS_SERIAL_PORT Serial2
@@ -190,7 +191,7 @@ class Shart {
     
     //File data_file; // The data file on the SD card
     uint16_t sd_num_connection_attempts = 0;
-    uint8_t bigassbuffer[2048]; // buffer for radio TX
+    uint8_t bigassbuffer[1024]; // buffer for radio TX
 
     Status SDStatus = UNINITIALIZED;
 

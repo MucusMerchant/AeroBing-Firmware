@@ -1,7 +1,16 @@
 #include "shart.h"
 
 void Shart::initGTU7() {
-  // add configuration code here if it ever works
+  // Config code seems to always work but will fail silently if not, maybe modify the library to wait for acknowledgement
+  UbxGpsConfig<HardwareSerial, usb_serial_class> *ubxGpsConfig = 
+    new UbxGpsConfig<HardwareSerial, usb_serial_class>(GPS_SERIAL_PORT, USB_SERIAL_PORT);
+  ubxGpsConfig->setBaudrate(GPS_BAUD_RATE);
+  ubxGpsConfig->setMessage(UbxGpsConfigMessage::NavPvt);
+  ubxGpsConfig->setRate(100);
+  ubxGpsConfig->configure();
+  delete ubxGpsConfig;
+
+    
   gps.begin(GPS_BAUD_RATE);
   while (!GPS_SERIAL_PORT);
 

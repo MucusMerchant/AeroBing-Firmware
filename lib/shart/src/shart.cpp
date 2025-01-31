@@ -7,15 +7,11 @@ Shart::Shart() {
 // Initialize some stuff plus everything on shart
 void Shart::init() {
 
-  #ifndef START_ON_POWERUP
-  awaitStart();
-  #endif
-
   this->chipTimeOffset = micros();
 
   // initialize pins, storage, and transmission
-  initPins();
   initSerial();
+  initPins();
   initSD();
   
   // initialize sensors
@@ -24,6 +20,10 @@ void Shart::init() {
   initBMP388();
   initADXL375();
   initGTU7();
+
+  #ifndef START_ON_POWERUP
+  awaitStart();
+  #endif
 
 }
 
@@ -34,7 +34,7 @@ void Shart::awaitStart() {
 
   for (;;) {
 
-    #if MAIN_SERIAL_PORT == USB_SERIAL_PORT
+    #ifdef USB_SERIAL_MODE//MAIN_SERIAL_PORT == USB_SERIAL_PORT
     packet_received = receivePacketType<command_p, usb_serial_class>(&command_packet, &MAIN_SERIAL_PORT, 1);
     #else
     packet_received = receivePacketType<command_p, HardwareSerial>(&command_packet, &MAIN_SERIAL_PORT, 1);
@@ -105,7 +105,7 @@ void Shart::maybeFinish() {
 
   bool packet_received;
 
-  #if MAIN_SERIAL_PORT == USB_SERIAL_PORT
+  #ifdef USB_SERIAL_MODE// MAIN_SERIAL_PORT == USB_SERIAL_PORT
   packet_received = receivePacketType<command_p, usb_serial_class>(&command_packet, &MAIN_SERIAL_PORT, 1);
   #else
   packet_received = receivePacketType<command_p, HardwareSerial>(&command_packet, &MAIN_SERIAL_PORT, 1);
