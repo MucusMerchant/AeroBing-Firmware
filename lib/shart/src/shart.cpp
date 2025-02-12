@@ -19,8 +19,9 @@ void Shart::init() {
   initLSM6DSO32();
   initBMP388();
   initADXL375();
-  initGTU7();
 
+  
+  initGTU7();
   #ifndef START_ON_POWERUP
   awaitStart();
   #endif
@@ -114,10 +115,12 @@ void Shart::maybeFinish() {
   if (packet_received && command_packet.data.command == STOP_COMMAND) {
     file.truncate();
     file.close();
-    pinMode(ONBOARD_LED_PIN, OUTPUT);
-    digitalWrite(ONBOARD_LED_PIN, LOW); // turn off Teensy light
-    delay(1000);
-    exit(0);
+    sd.end();
+    initSD();
+    //pinMode(ONBOARD_LED_PIN, OUTPUT);
+    //digitalWrite(ONBOARD_LED_PIN, LOW); // turn off Teensy light
+    //delay(1000);
+    //exit(0);
   }
   // meow
 }
@@ -141,6 +144,8 @@ void Shart::setStatusByte() {
   sensor_packet.data.status |= (ADXLStatus == AVAILABLE) << ADXL_STATUS_OFFSET;
   sensor_packet.data.status |= (LSMStatus == AVAILABLE)  << LSM_STATUS_OFFSET;
   sensor_packet.data.status |= (SDStatus == AVAILABLE)   << SD_STATUS_OFFSET;
+  sensor_packet.data.status |= (analogRead(41) > 712) << PYRO_STATUS_OFFSET;
+  sensor_packet.data.reserved = sd_file_opened;
 }
 
 // Initializes Teensy 4.1 pins
@@ -149,6 +154,7 @@ void Shart::initPins() {
   // Enable onboard Teensy 4.1 LED and turn it on!
   // If the Teensy is on, this LED will be on.
   pinMode(ONBOARD_LED_PIN, OUTPUT);
+  pinMode(41, INPUT);
   // pinMode(ICM_CS, OUTPUT);
   // pinMode(BMP_CS, OUTPUT);
   // pinMode(ADXL_CS, OUTPUT);

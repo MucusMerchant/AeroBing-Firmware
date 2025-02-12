@@ -43,7 +43,14 @@ void Shart::initSD() {
 
   //sd.remove(LOG_FILENAME);
   // Open or create file - truncate existing file.
-  if (!file.open(LOG_FILENAME, O_WRONLY | O_CREAT | O_TRUNC)) {
+  String file_name = LOG_FILENAME;
+  int counter = 1;
+  while (sd.exists(file_name + String(counter) + ".poop")) {
+    counter++;
+  }
+  sd_file_opened = counter;
+  file_name += String(counter) + ".poop";
+  if (!file.open(file_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC)) {
     UPDATE_STATUS(SDStatus, UNAVAILABLE, MAIN_SERIAL_PORT)
     ERROR("Failed to open log file!", MAIN_SERIAL_PORT)
     return;
@@ -122,8 +129,9 @@ void Shart::saveData() {
 // Transmit binary data via radio, beware of endian-ness. Network standard is big endian, but no point in converting twice
 // TODO: packet should include a byte indicating the status of all sensors
 void Shart::transmitData() {
-
-  MAIN_SERIAL_PORT.write(reinterpret_cast<unsigned char *>(&sensor_packet), sizeof(sensor_p));
+  if (sensor_packet_counter % RADIO_SEND_EVERY_N == 0)
+    MAIN_SERIAL_PORT.write(reinterpret_cast<unsigned char *>(&sensor_packet), sizeof(sensor_p));
+  sensor_packet_counter++;
   if (gps_ready) MAIN_SERIAL_PORT.write(reinterpret_cast<unsigned char *>(&gps_packet), sizeof(gps_p));
 
 }

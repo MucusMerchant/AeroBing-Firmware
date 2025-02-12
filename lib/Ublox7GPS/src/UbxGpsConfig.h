@@ -306,14 +306,14 @@ public:
 
     void configure()
     {
-        logSerial.println("Starting auto-configuration...");
+        //logSerial.println("Starting auto-configuration...");
 
         // Restore the default GPS receiver configuration.
         for (byte i = 0; i < sizeof(gpsPossibleBaudrates) / sizeof(*gpsPossibleBaudrates); i++)
         {
-            logSerial.print("Trying to restore defaults at ");
-            logSerial.print(gpsPossibleBaudrates[i]);
-            logSerial.println(" baudrate...");
+            //logSerial.print("Trying to restore defaults at ");
+            //logSerial.print(gpsPossibleBaudrates[i]);
+            //logSerial.println(" baudrate...");
 
             if (i != 0)
             {
@@ -328,9 +328,9 @@ public:
         // Switch the GPS receiver serial configuration to the default baudrate.
         if (gpsPossibleBaudrates[sizeof(gpsPossibleBaudrates) / sizeof(*gpsPossibleBaudrates) - 1] != GPS_DEFAULT_BAUDRATE)
         {
-            logSerial.print("Switching to the default baudrate which is ");
-            logSerial.print(GPS_DEFAULT_BAUDRATE);
-            logSerial.println("...");
+            //logSerial.print("Switching to the default baudrate which is ");
+            //logSerial.print(GPS_DEFAULT_BAUDRATE);
+            //logSerial.println("...");
 
             delay(100); // Little delay before the flush.
             gpsSerial.flush();
@@ -338,15 +338,15 @@ public:
         }
 
         // Disable NMEA messages by sending appropriate packets.
-        logSerial.println("Disabling NMEA messages...");
+        //logSerial.println("Disabling NMEA messages...");
         disableNmea();
 
         // Switch the GPS receiver serial configuration to the target baudrate.
         if (baudrate != GPS_DEFAULT_BAUDRATE)
         {
-            logSerial.print("Switching to the target baudrate which is ");
-            logSerial.print(baudrate);
-            logSerial.println("...");
+            //logSerial.print("Switching to the target baudrate which is ");
+            //logSerial.print(baudrate);
+            //logSerial.println("...");
 
             changeBaudrate();
 
@@ -358,21 +358,21 @@ public:
         if (rate == 100)
         {
             // Change receiving frequency to 100 ms.
-            logSerial.println("Changing receiving frequency to 100 ms...");
+            //logSerial.println("Changing receiving frequency to 100 ms...");
             changeFrequency();
         }
 
         // Disable unnecessary channels like SBAS or QZSS.
-        logSerial.println("Disabling unnecessary channels...");
+        //logSerial.println("Disabling unnecessary channels...");
         disableUnnecessaryChannels();
         delay(100);
 
         // Enable NAV-PVT messages.
-        logSerial.println("Enabling NAV-PVT messages...");
+        //logSerial.println("Enabling NAV-PVT messages...");
         enableNavPvt();
         delay(100);
 
-        logSerial.println("Auto-configuration is complete!");
+        //logSerial.println("Auto-configuration is complete!");
 
         delay(100); // Little delay before the flush.
         gpsSerial.flush();
