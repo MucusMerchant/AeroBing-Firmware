@@ -35,12 +35,7 @@ void Shart::awaitStart() {
 
   for (;;) {
 
-    #ifdef USB_SERIAL_MODE//MAIN_SERIAL_PORT == USB_SERIAL_PORT
-    packet_received = receivePacketType<command_p, usb_serial_class>(&command_packet, &MAIN_SERIAL_PORT, 1);
-    #else
-    packet_received = receivePacketType<command_p, HardwareSerial>(&command_packet, &MAIN_SERIAL_PORT, 1);
-    #endif
-    
+    RECEIVE_PACKET(command_packet, MAIN_SERIAL_PORT, packet_received)
     if (packet_received && command_packet.data.command == START_COMMAND) return; 
 
   }
@@ -60,8 +55,6 @@ void Shart::collect() {
   collectDataGTU7(); // GPS status doesn't matter here
 
   setStatusByte();
-  
-  PRINT_DATARATE()
 
 }
 
@@ -72,7 +65,7 @@ void Shart::send() {
   CHECKSUM(gps_packet)
 
   // Write to flash, send to radio
-  if (getStatusSD() != PERMANENTLY_UNAVAILABLE) saveData();
+  if (SDStatus != PERMANENTLY_UNAVAILABLE) saveData();
   transmitData(); // check radio status?
   // set gps_ready flag to false no matter what to make sure we don't send the same data twice
   gps_ready = false;
@@ -97,7 +90,7 @@ void Shart::reconnect() {
 // if storing/transmitting status in a shared array, this could cause issues
 void Shart::threadedReconnect() {
 
-  if (getStatusSD() == UNAVAILABLE) initSD();
+  if (SDStatus == UNAVAILABLE) initSD();
   
 }
 
@@ -106,11 +99,7 @@ void Shart::maybeFinish() {
 
   bool packet_received;
 
-  #ifdef USB_SERIAL_MODE// MAIN_SERIAL_PORT == USB_SERIAL_PORT
-  packet_received = receivePacketType<command_p, usb_serial_class>(&command_packet, &MAIN_SERIAL_PORT, 1);
-  #else
-  packet_received = receivePacketType<command_p, HardwareSerial>(&command_packet, &MAIN_SERIAL_PORT, 1);
-  #endif
+  RECEIVE_PACKET(command_packet, MAIN_SERIAL_PORT, packet_received)
 
   if (packet_received && command_packet.data.command == STOP_COMMAND) {
     file.truncate();

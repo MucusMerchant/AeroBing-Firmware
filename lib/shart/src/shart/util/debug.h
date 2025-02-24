@@ -23,28 +23,6 @@
   #define ERROR(message, serial_port)
 #endif
 
-// change variables later, redundancy with time vars
-#ifdef DEBUG_MODE_DATARATE
-  #define DATARATE_VARS() \
-    int current, prev, num_datapoints;
-  #define PRINT_DATARATE(serial_port) \
-    current = micros(); \
-    float rate = 1000000.0 / (current - prev); \
-    prev = current; \
-    num_datapoints++; \
-    if (num_datapoints % 1000 == 0) { \
-      serial_port.print("[RATE] "); \
-      serial_port.print(rate); \
-      serial_port.print("Hz -----> "); \
-      serial_port.print(num_datapoints); \
-      serial_port.print(" datapoints\n"); }
- 
-#else
-  #define DATARATE_VARS()
-  #define PRINT_DATARATE(serial_port)
-#endif
- 
-
 /* Keeping this here in case I want nicely formatted time in the future
     char buf[25]; \
     int time = sen.data.ms; \

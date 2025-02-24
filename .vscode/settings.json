@@ -11,6 +11,11 @@
         "initializer_list": "cpp",
         "utility": "cpp",
         "*.tcc": "cpp",
-        "*.config": "cpp"
+        "*.config": "cpp",
+        "iosfwd": "cpp",
+        "limits": "cpp",
+        "streambuf": "cpp",
+        "memory_resource": "cpp",
+        "ostream": "cpp"
     }
 }

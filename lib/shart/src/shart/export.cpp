@@ -135,9 +135,3 @@ void Shart::transmitData() {
   if (gps_ready) MAIN_SERIAL_PORT.write(reinterpret_cast<unsigned char *>(&gps_packet), sizeof(gps_p));
 
 }
-
-Status Shart::getStatusSD() {
-
-  return SDStatus;
-
-}

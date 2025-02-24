@@ -97,13 +97,13 @@
 #define RADIO_SERIAL_PORT  Serial8 // RX6 and TX6 on the teensy, see pinout for pin numbers
 #define RADIO_BAUD_RATE    115200//230400 // note that this has an impact on transmission speed
 #define RADIO_TIMEOUT_MS   1000 // Radio read timeout in milliseconds
-#define RADIO_SEND_EVERY_N 2
+#define RADIO_SEND_EVERY_N 4
 
 // Definitions for SD
 #define SD_CONFIG                      SdioConfig(FIFO_SDIO) // Use Teensy SDIO
 #define LOG_INTERVAL_USEC              40 // Interval between points for 25 ksps.
 #define LOG_FILE_SIZE                  2147483648//536870912  // 512MB allocated before logging to save time, maybe increase on launch day
-#define RING_BUF_CAPACITY              204800 //(400 * 512)
+#define RING_BUF_CAPACITY              16384 //(400 * 512)
 #define SD_MAX_NUM_CONNECTION_ATTEMPTS 1
 #define LOG_FILENAME                   "data"
 
@@ -184,9 +184,6 @@ class Shart {
     void saveData();
     void transmitData();
 
-    // status getters
-    Status getStatusSD();
-
     SdFs sd;
     FsFile file;
     RingBuf<FsFile, RING_BUF_CAPACITY> rb;
@@ -208,18 +205,13 @@ class Shart {
 
     // The current and previous times as recorded by a 'micros()' call
     uint32_t current_time = 0;
-
     uint32_t sensor_packet_counter = 0;
-
     uint8_t sd_file_opened = 0;
 
     // other initializers
     void awaitStart();
     void initPins();
     void initSerial();
-
-    // Macro to declare variables needed for DEBUG_MODE_DATARATE
-    DATARATE_VARS()
     
 };
 
