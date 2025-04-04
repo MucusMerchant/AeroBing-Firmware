@@ -103,7 +103,7 @@
 #define SD_CONFIG                      SdioConfig(FIFO_SDIO) // Use Teensy SDIO
 #define LOG_INTERVAL_USEC              40 // Interval between points for 25 ksps.
 #define LOG_FILE_SIZE                  2147483648//536870912  // 512MB allocated before logging to save time, maybe increase on launch day
-#define RING_BUF_CAPACITY              16384 //(400 * 512)
+#define RING_BUF_CAPACITY              200 * 512//16384 //(400 * 512)
 #define SD_MAX_NUM_CONNECTION_ATTEMPTS 1
 #define LOG_FILENAME                   "data"
 

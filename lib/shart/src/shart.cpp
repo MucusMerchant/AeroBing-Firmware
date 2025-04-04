@@ -101,7 +101,7 @@ void Shart::maybeFinish() {
 
   RECEIVE_PACKET(command_packet, MAIN_SERIAL_PORT, packet_received)
 
-  if (packet_received && command_packet.data.command == STOP_COMMAND) {
+  if (packet_received && command_packet.data.command == STOP_COMMAND && SDStatus == AVAILABLE) {
     file.truncate();
     file.close();
     sd.end();

@@ -107,7 +107,7 @@ void Shart::saveData() {
   if (n >= 512 && !file.isBusy()) {
     // Not busy only allows one sector before possible busy wait.
     // Write one sector from RingBuf to file.
-    if (512 != rb.writeOut(512)) {
+    if (512 != rb.writeOut(512)) {// || !file.sync()) {
       UPDATE_STATUS(SDStatus, UNAVAILABLE, MAIN_SERIAL_PORT)
       ERROR("Writeout failed!", MAIN_SERIAL_PORT)
       return;
